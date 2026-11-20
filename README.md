@@ -1,5 +1,9 @@
 # Enterprise Business Plugin
 
+[![ci](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![version](https://img.shields.io/badge/version-0.1.0-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
+
 A portable **[Agent Plugins v1](https://agent-plugins.org)** package carrying a governed AI
 skills layer for business operations: **93 skill contracts across 12 business functions,
 served by 16 skills**, backed by a deterministic governance server.
