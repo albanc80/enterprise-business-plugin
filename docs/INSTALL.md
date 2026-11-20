@@ -79,11 +79,41 @@ itself as a marketplace in `.claude-plugin/marketplace.json` (which also carries
 ```bash
 claude plugin validate .
 claude plugin marketplace add albanc80/enterprise-business-plugin
-claude plugin install enterprise-business-plugin@enterprise-business-plugin
-claude --plugin-dir .                                           # or load a working copy without installing
+claude plugin install enterprise-business-plugin@enterprise-business-plugin -y
 ```
 
-`claude plugin list` reports the version, source and enabled state.
+`claude plugin list` reports the version, source and enabled state:
+
+```
+❯ enterprise-business-plugin@enterprise-business-plugin
+  Version: 0.1.0
+  Scope: user
+  Status: ✔ enabled
+```
+
+`claude mcp list` must show the server **Connected**, with the plugin root resolved to the cache:
+
+```
+plugin:enterprise-business-plugin:enterprise-core: uv run --quiet --script
+  C:/Users/<you>/.claude/plugins/cache/enterprise-business-plugin/enterprise-business-plugin/0.1.0/servers/enterprise_core/main.py
+  - ✔ Connected
+```
+
+### If you open the repo folder directly, instead of installing it
+
+Claude Code picks up the repo's `.mcp.json` as a **project-scoped** server, which looks like a
+broken install and is not one:
+
+```
+enterprise-core: uv run --quiet --script ${CLAUDE_PLUGIN_ROOT}/servers/enterprise_core/main.py
+  - ⏸ Pending approval
+  └ [Warning] Missing environment variables: CLAUDE_PLUGIN_ROOT
+```
+
+`${CLAUDE_PLUGIN_ROOT}` is only defined for **plugin-scoped** servers, so a project-scope pickup can
+never resolve it. Do not approve it and do not try to fix it — install the plugin (above), which
+expands the variable to the installed path. The same file serves both roles, and only the plugin
+install has the context to fill it in.
 
 ## ChatGPT desktop / Codex runtime
 

@@ -161,7 +161,7 @@ Three states, deliberately distinguished — read the status column before quoti
 | Client | Skills | Tools | Install path | Status |
 |---|---|---|---|---|
 | Hermes | yes | yes | `hermes plugins install` | **verified** — installed from remote, MCP registered, `list_capabilities` called in a fresh session |
-| Claude Code | yes | yes | `claude plugin marketplace add` | **validated** — `claude plugin validate .` passes (icon warning only); not installed here |
+| Claude Code | yes | yes | `claude plugin marketplace add` | **verified** — installed from the marketplace; `claude mcp list` shows `plugin:enterprise-business-plugin:enterprise-core` **Connected**; `list_capabilities` returned `93 / A1` in a headless session |
 | Codex (CLI and ChatGPT desktop) | yes | expected | `codex plugin marketplace add` | **expected** — v1 client; Codex has no validate-only path, so verifying it means writing to `~/.codex` |
 | OpenClaw | yes | expected | plugin bundles, or skills dir + `openclaw mcp set` | **expected** — not exercised |
 | Copilot, Cursor, VS Code, Kiro, Antigravity | yes | expected | native v1 clients — point at the repo | **expected** — v1 by specification, not exercised |
