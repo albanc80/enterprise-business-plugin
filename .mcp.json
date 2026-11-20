@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "enterprise-core": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--quiet",
+        "--script",
+        "${CLAUDE_PLUGIN_ROOT}/servers/enterprise_core/main.py"
+      ]
+    }
+  }
+}

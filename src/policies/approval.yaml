@@ -1,0 +1,41 @@
+# Approval gate rules.
+#
+# An approval binds to one proposed action. It is not a session token, a role, or
+# a "user said fine earlier". The server validates these rules in approval_gate
+# before any A2 result is returned to a caller.
+#
+# Source: SRD v1.0 §panel-architecture (interaction
+# contract) and #panel-governance (separation of duties).
+
+schema: enterprise-business-plugin/policy/approval/v1
+id: approval
+
+rules:
+  action_specific:
+    statement: An approval authorises exactly one proposed action.
+    enforced: approval must carry the action digest it was granted for
+  expiry:
+    statement: An approval expires when its context changes or its window passes.
+    default_window_minutes: 60
+    invalidates_on:
+      - any change to the proposed action payload
+      - scope expansion
+      - approver role loss
+      - policy version change
+  no_reuse:
+    statement: An approved action cannot be re-executed under the same approval.
+    enforced: approval id is single-use; replay is rejected
+  separation_of_duties:
+    statement: The approver is not the proposer and not the model.
+    enforced: approver identity must differ from the requesting actor
+  evidence_bundle:
+    statement: The approver sees what they are approving.
+    required_fields:
+      - proposed_action
+      - skill_id_and_version
+      - cited_evidence
+      - risk_tier
+      - reversibility
+      - rollback_path
+  refusal_default:
+    statement: Missing or malformed approval denies; it never degrades to allow.

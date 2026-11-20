@@ -1,0 +1,44 @@
+# A synthetic, conforming connector manifest — illustrative only.
+#
+# Nothing here connects to a real system. It exists so `check_connector` has a
+# positive case to be tested against, and so the manifest shape is concrete.
+#
+# Copy this, replace the tools with the ones your MCP server actually exposes, and
+# declare the obligations truthfully. A false `true` here is a lie the validator
+# cannot detect and your security review will.
+
+connector: mock-itsm
+system_categories: [ITSM, CMDB]
+transport: mcp-stdio
+owner: service-desk-platform
+version: "1.0.0"
+
+# Connector-level obligations (src/policies/connectors.yaml)
+audit_passthrough: true
+least_privilege: true
+no_ambient_credentials: true
+bounded_retry: true
+
+tools:
+  - name: itsm.get_incident
+    operation: read
+    resource: incident
+    schema_version: "1"
+
+  - name: itsm.list_assets
+    operation: read
+    resource: asset
+    schema_version: "1"
+
+  - name: itsm.propose_assignment
+    operation: propose
+    resource: assignment
+    schema_version: "1"
+
+  - name: itsm.create_ticket
+    operation: write
+    resource: ticket
+    schema_version: "1"
+    idempotency_key: request_id
+    post_condition: "ticket number returned and re-readable from itsm.get_incident"
+    rollback: "close the created ticket with an audit note"

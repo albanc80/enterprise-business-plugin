@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "enterprise-business-plugin",
+  "version": "0.1.0",
+  "description": "A governed AI skills layer for business operations as a portable Agent Plugins v1 package: 93 skill contracts across 12 business functions, 16 skills and a deterministic governance MCP. Advisory and draft by default; never actuates.",
+  "author": {
+    "name": "Alberto Ancona"
+  },
+  "repository": "https://github.com/albanc80/enterprise-business-plugin",
+  "keywords": [
+    "enterprise",
+    "agent-skills",
+    "ai-governance",
+    "autonomy",
+    "human-in-the-loop",
+    "mcp",
+    "skills"
+  ],
+  "license": "Apache-2.0"
+}

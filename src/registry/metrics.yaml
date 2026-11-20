@@ -1,0 +1,30 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/metrics/v1
+metrics:
+- category: Efficiency
+  metric: Median workflow cycle time
+  target: 'Target: 20–30% decrease vs 4-week baseline'
+  definition: By function / skill, end-to-end, includes human approval latency
+- category: Quality
+  metric: First-pass resolution / accuracy
+  target: 'Target: ≥15% relative improvement'
+  definition: Tracked by task-specific gold set and user-confirmed resolution
+- category: Control
+  metric: Unauthorized consequential actions
+  target: 'Target: 0'
+  definition: Verified with denied-action tests and live exception monitoring
+- category: Adoption
+  metric: Eligible workflow adoption
+  target: 'Target: ≥50% in pilot after 90 days'
+  definition: Unique eligible users and work items, not clicks or prompts
+- category: Financial
+  metric: Cost per successfully completed case
+  target: 'Target: ≥15% reduction'
+  definition: Includes model, tools, licenses, operations and human rework
+- category: Trust
+  metric: Escalation precision / approval compliance
+  target: 'Target: 100% protected actions approved'
+  definition: Review appeal rate and unhandled-risk escape rate
+note: Hypothesis targets from the SRD. Not benchmarks and not observed results.

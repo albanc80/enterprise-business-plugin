@@ -1,0 +1,48 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/checklist/v1
+note: Production release readiness. Self-marked boxes are not independent validation.
+items:
+- id: R1
+  name: Business ownership & baseline
+  evidence: A named process owner, defined actor, eligible-case count, unit economics and
+    observed baseline exist.
+- id: R2
+  name: Policies, evidence & access
+  evidence: Approved source versions, role/tenant scopes, data classification and legal applicability
+    are documented.
+- id: R3
+  name: Contracts & deterministic control
+  evidence: Typed schema, allowed tools, idempotency, rollback/fallback and transaction approval
+    are tested.
+- id: R4
+  name: Risk, threat & privacy review
+  evidence: Security/SME reviewers independently challenge prompt injection, leakage, action
+    boundaries and consequence.
+- id: R5
+  name: Evaluation & adversarial cases
+  evidence: Golden and failure tests meet signed task-specific thresholds; no severe unresolved
+    escape remains.
+- id: R6
+  name: Operations & rollback
+  evidence: SLIs, on-call owner, support model, kill switch, retention, cost caps and incident
+    procedures are rehearsed.
+- id: R7
+  name: Business acceptance & adoption
+  evidence: Pilot demonstrates improved outcomes, acceptable experience and signed process
+    owner acceptance.
+suggested_pilot:
+- HR-01
+- IT-02
+- CSP-02
+- FIN-01
+- FIN-02
+- SCM-01
+- HSE-02
+default_weights:
+  impact: 35
+  readiness: 25
+  reuse: 20
+  effort: 10
+  risk: 10

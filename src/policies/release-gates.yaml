@@ -1,0 +1,57 @@
+# Release decision gates.
+#
+# A skill does not reach production because it exists. Each gate is a set of
+# evidence that must be present. release_gate returns pass/fail per gate plus the
+# missing items; it never returns a score that can be mistaken for a risk
+# appetite.
+#
+# Source: SRD v1.0 §panel-roadmap (G1–G3)
+
+schema: enterprise-business-plugin/policy/release-gates/v1
+id: release-gates
+
+gates:
+  - id: G1
+    name: Feasibility and data
+    required:
+      - named_process_owner
+      - workflow_baseline
+      - trusted_data_available
+      - access_scope_defined
+      - non_ai_fallback_defined
+      - process_segmentation_defined
+    blocks: all deployment
+
+  - id: G2
+    name: Assurance
+    required:
+      - skill_golden_set
+      - adverse_and_failure_path_tests
+      - security_review
+      - privacy_review
+      - protected_action_proof
+      - signed_acceptance
+    blocks: all deployment
+
+  - id: G3
+    name: Business proof
+    required:
+      - measured_outcome_vs_baseline
+      - adoption_and_error_trends
+      - unit_economics
+      - rollback_ownership
+    blocks: expansion beyond pilot
+
+waivers:
+  # Explicit, attributed, time-boxed. A waiver is not a pass.
+  require:
+    - owner
+    - justification
+    - expiry
+  # Every entry here must be an item that actually appears in a gate's required
+  # list — tools/validate.py enforces that, because a never-waivable item that no
+  # gate checks is a control that silently does nothing.
+  never_waivable:
+    - protected_action_proof
+    - privacy_review
+    - security_review

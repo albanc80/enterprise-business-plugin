@@ -1,0 +1,46 @@
+# A deliberately non-conforming connector manifest — the negative test case.
+#
+# Every problem here is one the validator must catch, because each would silently
+# weaken a guarantee the package claims:
+#
+#   - ambient_credentials: the credential is not attributable to the requesting actor
+#   - unbounded_retry: a retry loop can duplicate or amplify an action
+#   - write without rollback: an irreversible write with no compensation path
+#   - write without post_condition: no proof the write landed
+#   - propose declared as write with no idempotency: replay creates duplicates
+#
+# Do not "fix" this file. It is the fixture that proves the gate still works.
+
+connector: mock-time-entry
+system_categories: [Time tracking]
+transport: direct-api
+owner: unassigned
+
+audit_passthrough: true
+least_privilege: false
+no_ambient_credentials: false
+bounded_retry: false
+ambient_credentials: true
+unbounded_retry: true
+
+tools:
+  - name: time.get_entry
+    operation: read
+    resource: time_entry
+    schema_version: "1"
+
+  - name: time.approve_entry
+    operation: write
+    resource: time_approval
+    schema_version: "1"
+
+  - name: time.submit_entry
+    operation: write
+    resource: time_entry
+    schema_version: "1"
+    post_condition: "entry id returned"
+    rollback: none
+
+  - name: time.raw
+    operation: mutate
+    resource: time_entry

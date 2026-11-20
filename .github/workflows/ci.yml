@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Registry matches the source document
+        run: uv run --quiet --with "pyyaml>=6,<7" -- python tools/build.py --check
+
+      - name: Package validates
+        run: uv run --quiet --with "pyyaml>=6,<7" -- python tools/validate.py
+
+      - name: Server selftest
+        run: uv run --script servers/enterprise_core/main.py --selftest
+
+      - name: MCP protocol probe
+        run: uv run --quiet --with "pyyaml>=6,<7" -- python tools/probe_mcp.py
+
+      - name: Connector conformance fixtures
+        run: |
+          uv run --quiet --with "pyyaml>=6,<7" -- python tools/check_connector.py examples/connectors/mock-itsm.yaml --skills IT-01,IT-02,IT-03,IT-04
+          if uv run --quiet --with "pyyaml>=6,<7" -- python tools/check_connector.py examples/connectors/bad-time-entry.yaml --skills IT-01; then
+            echo "::error::the deliberately broken connector manifest was accepted"
+            exit 1
+          fi
+
+      - name: Governance tests
+        run: >
+          uv run --quiet
+          --with pytest
+          --with "mcp>=2,<3"
+          --with "pyyaml>=6,<7"
+          -- python -m pytest tests -q
+
+      - name: Walkthrough scenario
+        run: uv run --quiet --with "pyyaml>=6,<7" -- python examples/governance_walkthrough.py
+
+      - name: Hermes plugin validator
+        continue-on-error: true
+        run: |
+          uv tool run --from hermes-agent hermes plugins validate . || \
+            echo "::warning::hermes CLI unavailable in CI; validation covered by tools/validate.py"

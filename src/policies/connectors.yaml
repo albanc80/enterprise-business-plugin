@@ -1,0 +1,64 @@
+# Connector contract.
+#
+# This package ships no connectors. It ships the interface a connector has to
+# satisfy for the package's guarantees to survive into a live system, plus a
+# validator (`check_connector`) that reports the gap for a declared connector.
+#
+# What this can validate: that a connector is structurally able to carry the
+# guarantees — least privilege, idempotency, post-condition checks, rollback,
+# audit passthrough, and the operation class a given skill needs.
+#
+# What it cannot validate: that your connector implements your process correctly,
+# maps the right fields, or behaves under load. That is G1/G2 evidence work
+# (docs/BOUNDARIES.md), not a manifest check.
+
+schema: enterprise-business-plugin/policy/connectors/v1
+id: connectors
+
+manifest:
+  required_fields:
+    - connector           # stable identifier
+    - system_categories   # list of categories it covers, e.g. [ERP, AP/AR]
+    - transport           # mcp-stdio | https-mcp | direct-api
+    - tools               # list of tool declarations
+  optional_fields:
+    - owner
+    - version
+    - notes
+
+tool:
+  required_fields:
+    - name
+    - operation
+    - resource
+    - schema_version
+  operations:
+    read: Returns data. No state change.
+    propose: Creates a draft, request or recommendation for a human. Must be reversible.
+    write: Changes state in a system of record.
+  # A write tool is only acceptable when all of these are declared.
+  write_requires:
+    - idempotency_key     # replaying the same key must not duplicate the write
+    - post_condition      # how the connector proves the write landed
+    - rollback            # the compensating action, or an explicit "none — irreversible"
+
+connector:
+  requires:
+    audit_passthrough: Every tool call is logged with actor, purpose, correlation_id and outcome.
+    least_privilege: The credential is narrower than, or equal to, the requesting actor's own rights.
+    no_ambient_credentials: No credential is read from the environment, a shared file or a default profile.
+    bounded_retry: Retries are capped and deduplicated by the idempotency key.
+  forbidden:
+    - shared_service_account
+    - ambient_credentials
+    - unbounded_retry
+    - unlogged_write
+
+# Operation class a skill needs, derived from its effective autonomy rather than
+# from a guess: A0/A1 produce drafts, so a read tool satisfies them. Only A2 needs
+# a write tool, and only an opted-in skill can be in that state.
+operation_by_mode:
+  advisory_only: read
+  draft_only: read
+  human_confirm: write
+  auto: write

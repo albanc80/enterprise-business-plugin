@@ -1,0 +1,11 @@
+# Generated YAML is compared byte-for-byte by tools/build.py --check, so line
+# endings must be identical on every platform. Normalise to LF everywhere.
+* text=auto eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+LICENSE text eol=lf
+NOTICE text eol=lf

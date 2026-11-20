@@ -1,0 +1,38 @@
+# Opportunity scoring.
+#
+# Reproduces the SRD's priority heuristic exactly so the server and the document
+# cannot diverge. Illustrative planning weights, not measured ROI.
+#
+# Formula (SRD): value = (impact*w.impact + readiness*w.readiness + reuse*w.reuse
+#                        + (6-effort)*w.effort + (6-riskrank)*w.risk) / sum(weights)
+#                score = round(value * 20)          -> 0..100
+#
+# Source: SRD v1.0 score() in the srd-json block
+
+schema: enterprise-business-plugin/policy/scoring/v1
+id: scoring
+
+scale:
+  min: 1
+  max: 5
+  effort_inverted: true   # low effort is worth more
+  risk_inverted: true     # lower risk is worth more
+
+risk_rank:
+  Low: 1
+  Moderate: 2
+  High: 4
+  Critical: 5
+
+default_weights:
+  impact: 35
+  readiness: 25
+  reuse: 20
+  effort: 10
+  risk: 10
+
+output_range: 0..100
+caveat: >-
+  A score is a prioritisation hypothesis. It is not an implementation
+  authorisation and must be replaced with process evidence, integration discovery,
+  cost and compliance findings before funding.

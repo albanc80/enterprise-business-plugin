@@ -1,0 +1,16 @@
+# Local plugin data: audit trail and any runtime state
+.data/
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+uv.lock
+# Build scratch
+.tables.md
+# OS
+.DS_Store
+Thumbs.db
+# The requirements document is the author's working copy, not a published artefact.
+# Only its normalized projection (src/registry/source.json) ships.
+docs/srd/

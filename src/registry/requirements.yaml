@@ -1,0 +1,237 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/requirements/v1
+requirements:
+- type: Functional
+  id: FR-01
+  name: Catalog & discovery
+  statement: System shall provide a versioned, searchable catalog of skills, capabilities,
+    owners, risk tiers, dependencies and approved environments.
+  accept: Search finds each active skill by name, function, owner and capability; disabled
+    versions cannot be invoked.
+  priority: Must
+- type: Functional
+  id: FR-02
+  name: Typed contracts
+  statement: Each skill shall declare JSON-schema-compatible inputs/outputs, purpose, preconditions,
+    allowed resources, side effects, exceptions and versions.
+  accept: Invalid inputs produce structured non-executing errors; schema tests pass for every
+    production skill.
+  priority: Must
+- type: Functional
+  id: FR-03
+  name: Identity propagation
+  statement: Requests shall carry authenticated principal, tenant, purpose, delegated rights
+    and expiry into every downstream call.
+  accept: Identity context is enforced at every tool boundary; forged or expired identity
+    is rejected.
+  priority: Must
+- type: Functional
+  id: FR-04
+  name: Policy-aware routing
+  statement: Orchestration shall enforce allowlisted tools, data scopes, deterministic policy
+    checks and risk-based routes.
+  accept: Disallowed tools cannot be invoked even when model output requests them.
+  priority: Must
+- type: Functional
+  id: FR-05
+  name: Approval gates
+  statement: High-consequence decisions and protected write actions shall obtain an appropriately
+    authorized, transaction-specific approval.
+  accept: Approval cannot be reused after expiry, scope change or rejection; approver identity
+    is logged.
+  priority: Must
+- type: Functional
+  id: FR-06
+  name: Evidence & citations
+  statement: Knowledge outputs shall link claims and recommendations to accessible, versioned
+    evidence.
+  accept: No unsupported policy or legal claim passes a sampled golden-set source validation.
+  priority: Must
+- type: Functional
+  id: FR-07
+  name: Sensitive data controls
+  statement: Platform shall classify, minimize and restrict sensitive information through
+    prompts, retrieval, logs, outputs and exports.
+  accept: Synthetic secret/PII tests show no exposure to unauthorized principals or model
+    providers.
+  priority: Must
+- type: Functional
+  id: FR-08
+  name: Human escalation
+  statement: Skills shall suspend and route to a named owner on uncertainty, missing evidence,
+    policy conflict or execution failure.
+  accept: Injected missing/contradictory cases return review-required with complete context.
+  priority: Must
+- type: Functional
+  id: FR-09
+  name: Transactional execution
+  statement: Mutating tools shall enforce dry-run, idempotency, pre/post-state checks, bounded
+    retry and compensation/rollback where feasible.
+  accept: Replaying command or retry after timeout never causes duplicate business mutation.
+  priority: Must
+- type: Functional
+  id: FR-10
+  name: Cross-function handoff
+  statement: A skill shall produce typed handoff events with owner, correlation ID, deadlines
+    and acceptance evidence.
+  accept: Downstream consumer rejects mismatched schema and can trace origin/end state.
+  priority: Should
+- type: Functional
+  id: FR-11
+  name: Decision transparency
+  statement: Skill shall separate observed facts, assumptions, recommendations and authorization
+    status.
+  accept: Audit sample shows all consequential recommendations include explanation and reviewer
+    route.
+  priority: Must
+- type: Functional
+  id: FR-12
+  name: Safe knowledge updates
+  statement: Policy and knowledge updates shall require an owner, version, effective date,
+    approval and rollback path.
+  accept: A superseded document cannot silently override an active approved policy.
+  priority: Must
+- type: Functional
+  id: FR-13
+  name: Monitoring & kill switch
+  statement: Operations shall expose status, error budget, tool usage, token cost, rate limits,
+    stop control and incident escalation.
+  accept: Authorized operator disables a skill and blocks new executions promptly; in-flight
+    actions follow documented halt path.
+  priority: Must
+- type: Functional
+  id: FR-14
+  name: Feedback & learning loop
+  statement: Users shall be able to flag errors and route them into triage, evaluations and
+    controlled re-release.
+  accept: Every accepted high-severity finding has owner, reproduction case and regression
+    test.
+  priority: Should
+- type: Functional
+  id: FR-15
+  name: Outcome traceability
+  statement: Every production skill shall link to process owner, baseline KPI, expected benefit,
+    guardrail and review cadence.
+  accept: Deployment is blocked where required owner/metric/baseline fields are empty.
+  priority: Must
+- type: Functional
+  id: FR-16
+  name: Configuration portability
+  statement: Policies, skills and connectors shall be decoupled from model and enterprise
+    vendor with swappable adapters.
+  accept: At least one model/provider change is tested without changing business contract.
+  priority: Should
+- type: Functional
+  id: FR-17
+  name: Connector resilience
+  statement: Connectors shall detect outage, stale data, schema drift and rate limits, falling
+    back to safe queue or human process.
+  accept: Injected connector failure preserves state and produces actionable retry/escalation.
+  priority: Must
+- type: Functional
+  id: FR-18
+  name: Controlled deployment
+  statement: Release shall use signed versions, review gates, staged rollout and reversible
+    feature flags.
+  accept: Rollback to last approved version restores expected contract and blocks revoked
+    features.
+  priority: Must
+- type: Non-functional
+  id: NFR-01
+  name: Security assurance
+  statement: Encrypt in transit/at rest, manage short-lived secrets and enforce least privilege,
+    segmentation and supply-chain integrity.
+  accept: Threat model, access tests and credential-scanning evidence approved before production.
+  priority: Must
+- type: Non-functional
+  id: NFR-02
+  name: Availability
+  statement: For business-critical skills, target ≥99.5% service availability excluding agreed
+    maintenance; define dependency-specific SLOs.
+  accept: 30-day availability dashboard demonstrates SLO with dependency exclusions disclosed.
+  priority: Should
+- type: Non-functional
+  id: NFR-03
+  name: Latency
+  statement: For interactive read/draft flows, initial target p95 ≤10 s, excluding external
+    system wait; asynchronous tasks report progress.
+  accept: Synthetic production-like load validates p95 or documents SLO exception.
+  priority: Should
+- type: Non-functional
+  id: NFR-04
+  name: Trace integrity
+  statement: 100% of sensitive tool actions shall log actor, purpose, tool, version, approval,
+    input/output digests and outcome.
+  accept: Auditor can replay a sample of protected decisions from trace and source versions.
+  priority: Must
+- type: Non-functional
+  id: NFR-05
+  name: Quality and calibration
+  statement: Set task-specific accuracy and false-action thresholds by risk tier; critical
+    unauthorized writes target zero.
+  accept: Independent gold-set tests meet signed acceptance threshold; no severe open failures.
+  priority: Must
+- type: Non-functional
+  id: NFR-06
+  name: Privacy & retention
+  statement: Apply regional privacy rules, retention schedules, deletion/legal holds and minimization
+    by process.
+  accept: Deletion and retention controls pass sampled regulator/customer policy scenarios.
+  priority: Must
+- type: Non-functional
+  id: NFR-07
+  name: Accessibility
+  statement: UI shall target WCAG 2.2 AA where applicable and support keyboard/screen-reader
+    navigation.
+  accept: Keyboard, contrast, focus and accessible-name checks pass independent audit.
+  priority: Should
+- type: Non-functional
+  id: NFR-08
+  name: Observability
+  statement: Surface correlation IDs, error types, retrieval quality, drift, costs, approval
+    latency and human override rates.
+  accept: Dashboard covers agreed SLIs and alerts are assigned to named on-call role.
+  priority: Must
+- type: Non-functional
+  id: NFR-09
+  name: Isolation & tenancy
+  statement: Cross-unit/tenant data shall never leak through retrieval, memory, caches, state
+    or logs.
+  accept: Cross-tenant adversarial tests have zero successful data exposures.
+  priority: Must
+- type: Non-functional
+  id: NFR-10
+  name: Operational cost
+  statement: Track model/tool cost per successful task and budget limits by skill and department.
+  accept: Spend limits halt unnecessary calls and reports attribute unit cost accurately.
+  priority: Should
+- type: Non-functional
+  id: NFR-11
+  name: Evaluation reproducibility
+  statement: Preserve fixture, prompt/config, connector stub, model version, expected outcome
+    and scoring rules.
+  accept: A reviewer reproduces regression results from pinned test evidence.
+  priority: Must
+- type: Non-functional
+  id: NFR-12
+  name: Data quality & freshness
+  statement: Input contracts shall define timestamp, lineage, unit, null behavior and freshness
+    SLA.
+  accept: Stale/ambiguous data tests trigger uncertainty and prohibited-action safeguards.
+  priority: Must
+- type: Non-functional
+  id: NFR-13
+  name: Business continuity
+  statement: Critical processes shall have tested fallback, manual work instruction and incident
+    response path.
+  accept: Tabletop run confirms fallback meets process RTO/RPO targets defined by owner.
+  priority: Must
+- type: Non-functional
+  id: NFR-14
+  name: Change control
+  statement: Production changes require approvals proportional to consequence; independent
+    review for material safety/security/finance functions.
+  accept: Release evidence contains required signoffs and segregation-of-duties record.
+  priority: Must

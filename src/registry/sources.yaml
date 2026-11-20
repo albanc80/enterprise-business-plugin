@@ -1,0 +1,20 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/sources/v1
+sources:
+- title: NIST AI RMF 1.0
+  url: https://www.nist.gov/itl/ai-risk-management-framework
+  use: 'Risk governance: GOVERN, MAP, MEASURE, MANAGE'
+- title: NIST Generative AI Profile (AI 600-1)
+  url: https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence
+  use: Generative AI-specific risk evaluation
+- title: ISO/IEC 42001:2023
+  url: https://www.iso.org/standard/42001
+  use: Enterprise AI management system and control lifecycle
+- title: OWASP Top 10 for Agentic Applications 2026
+  url: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+  use: Agent-specific threats and mitigations
+- title: OWASP GenAI Security Project 2026 guidance
+  url: https://genai.owasp.org/2026/09/01/owasp-genai-security-project-unveils-2026-top-10-for-llm-applications-new-agent-control-standard-and-sponsors-as-community-tops-30000-members/
+  use: Contemporary LLM application and agent controls

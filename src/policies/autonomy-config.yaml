@@ -1,0 +1,67 @@
+# Autonomy configuration — the effective permission ceiling for this package.
+#
+# The registry keeps each skill's *requested* autonomy from the SRD. This file is
+# the only place that decides what may actually execute, so tightening or widening
+# the ceiling never rewrites a source contract.
+#
+# Loaded by servers/enterprise_core at startup and by tools/validate.py.
+# Source of the tier definitions: SRD v1.0 §panel-governance
+
+schema: enterprise-business-plugin/policy/autonomy-config/v1
+id: autonomy-config
+
+ceiling:
+  # The package ships at A1 (draft only). Nothing in it writes to a system of
+  # record out of the box.
+  default_max_level: A1
+  # A3 is defined in the model (src/policies/autonomy-tiers.yaml) so a reader can
+  # see the full scale and understand why A2 is the ceiling here. It is NOT
+  # implemented by this package, and there is deliberately no switch for it: no
+  # opt-in key, no flag, no tool. tools/validate.py rejects unknown keys in this
+  # file, so an `a3_skills` slot cannot be added back and left inert.
+  a3_shipped: false
+  rationale: >-
+    A capability pack installed with one command must not be able to mutate an
+    enterprise system on first use. Drafting is useful on day one; a write needs a
+    named owner who has read the contract and configured a gate. Enabling A3 is a
+    different package with a different approval model, not a configuration change.
+
+opt_in:
+  # Per-skill escalation to A2. An entry is a mapping that supplies every field in
+  # `requires`; the server reads those fields and refuses the escalation when any is
+  # missing. A bare skill id is not an opt-in — it is a configuration error, which
+  # tools/validate.py fails the build on rather than letting it silently do nothing.
+  #
+  # An opt-in can only *restore* what a contract already requests. It cannot grant a
+  # skill more autonomy than the contract declares, because the skill's procedures,
+  # refusals and acceptance criteria were written for its own level.
+  #
+  # Example entry:
+  #
+  #   a2_skills:
+  #     - skill: IT-01
+  #       named_process_owner: service-desk-lead
+  #       approval_gate_configured: true
+  #       audit_trail_enabled: true
+  #       rollback_path: "close or delete the created ticket"
+  #
+  a2_skills: []
+  requires:
+    - named_process_owner
+    - approval_gate_configured
+    - audit_trail_enabled
+    - rollback_path
+
+# Skill requests above the ceiling still resolve to the ceiling. The downgrade is
+# reported, never silent — see route_autonomy's `downgrades` field.
+downgrade_reporting: required
+
+excluded_final_decisions:
+  # The package analyses and drafts in these areas. It never takes the decision.
+  - autonomous_hiring_or_termination
+  - payroll_or_payment_release
+  - contract_execution_or_signature
+  - safety_authorisation_or_permit_to_work
+  - medical_determination
+  - legal_determination
+  - regulated_or_high_consequence_final_decision

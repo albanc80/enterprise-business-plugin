@@ -1,0 +1,60 @@
+# Risk handling matrix.
+#
+# Two jobs: state the minimum controls a skill inherits from its risk tier, and
+# cap the autonomy that tier may reach regardless of what the skill requests.
+#
+# `max_rank` is what the server enforces. `permitted_autonomy` is the human
+# sentence from the SRD, kept verbatim so the code and the prose cannot disagree.
+#
+# Source: SRD v1.0 §panel-governance
+
+schema: enterprise-business-plugin/policy/risk-controls/v1
+id: risk-controls
+
+tiers:
+  - risk: Low
+    max_rank: 3
+    example_exposure: Draft meeting notes and office logistics.
+    minimum_controls:
+      - access control
+      - factual review
+      - feedback capture
+      - logging
+    permitted_autonomy: A0–A1; A3 only for low-impact reversible actions.
+    note: >-
+      A3 is reachable only where the package ceiling allows it. This pack ships
+      A3 disabled, so the highest level available at Low risk is A1.
+
+  - risk: Moderate
+    max_rank: 2
+    example_exposure: Work ticket routing, routine notifications, limited office supplies.
+    minimum_controls:
+      - schema validation
+      - approved connector
+      - action bounds
+      - post-condition checks
+    permitted_autonomy: A0–A2; A3 only for approved low-consequence sub-actions.
+    note: A2 requires per-skill opt-in.
+
+  - risk: High
+    max_rank: 2
+    example_exposure: HR private records, customer contractual communications, security tickets.
+    minimum_controls:
+      - data minimization
+      - specialist review
+      - distinct approval gate
+    permitted_autonomy: A0–A2 with appropriate approval; no autonomous final decisions.
+    note: A2 requires per-skill opt-in and a named specialist reviewer.
+
+  - risk: Critical
+    max_rank: 2
+    example_exposure: Payments, access grants, safety authority, binding contracts, regulated obligations.
+    minimum_controls:
+      - deterministic controls
+      - independent review
+      - separation of duties
+      - full evidence retention
+    permitted_autonomy: Analysis or draft, or tightly approved execution; no A3 consequential actions.
+    note: >-
+      Critical skills never resolve to auto. A2 remains available with approval so
+      a tightly-scoped write can be authorised transaction by transaction.

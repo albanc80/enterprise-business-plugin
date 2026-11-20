@@ -1,0 +1,43 @@
+# Execution autonomy tiers.
+#
+# Transcribed from the SRD governance panel. The published tier table is the
+# authority here; the server reads these ranks rather than hard-coding them, so a
+# change to the tiers is a one-file edit.
+#
+# Source: SRD v1.0 §panel-governance
+
+schema: enterprise-business-plugin/policy/autonomy-tiers/v1
+id: autonomy-tiers
+
+tiers:
+  - level: A0
+    rank: 0
+    name: Insight
+    allowed: Read, retrieve, summarize, flag, advise.
+    prohibited: Modify records, publish, trigger actions.
+    approval: Human decides how to use consequential advice.
+    mode_result: advisory_only
+
+  - level: A1
+    rank: 1
+    name: Draft
+    allowed: Prepare content, cases, plans or recommendations.
+    prohibited: Submit, publish, book, commit or alter systems of record.
+    approval: Reviewer signs off before use or publication.
+    mode_result: draft_only
+
+  - level: A2
+    rank: 2
+    name: Approved action
+    allowed: Execute bounded writes after an action-specific authorization.
+    prohibited: Expand scope, reuse approvals, change unapproved values.
+    approval: Authorized human approves the transaction; independent controls verify.
+    mode_result: human_confirm
+
+  - level: A3
+    rank: 3
+    name: Bounded automatic
+    allowed: Pre-authorized, reversible, low-consequence actions inside fixed allowlists and quotas.
+    prohibited: Safety-critical, legal, employment, financial release or irreversible decisions.
+    approval: Prior scoped delegation, audit, and immediate operator disable.
+    mode_result: auto

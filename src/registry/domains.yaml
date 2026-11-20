@@ -1,0 +1,65 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/domains/v1
+domains:
+- id: Foundation
+  name: Enterprise foundation
+  description: Shared primitives used by every business function
+  owner: Platform / AI Governance
+  skill_count: 12
+- id: HR
+  name: Human resources
+  description: People operations, recruiting, learning and employee services
+  owner: HR Operations
+  skill_count: 8
+- id: IT
+  name: IT & technology
+  description: IT service management, access, engineering operations and security
+  owner: IT Operations / Security
+  skill_count: 8
+- id: Finance
+  name: Finance & accounting
+  description: Financial operations, controls, close and business planning
+  owner: Finance Controller
+  skill_count: 8
+- id: HSE
+  name: HSE & quality
+  description: Safety, environmental, quality and assurance workflows
+  owner: HSE & Quality Leader
+  skill_count: 8
+- id: Support
+  name: Customer & internal support
+  description: Case management, knowledge and service resolution
+  owner: Support Operations
+  skill_count: 8
+- id: Office
+  name: Office & workplace
+  description: Facilities, workplace, meetings and administrative services
+  owner: Workplace Services
+  skill_count: 7
+- id: Supply
+  name: Supply chain & procurement
+  description: Sourcing, supplier, inventory and fulfillment operations
+  owner: Supply Chain Operations
+  skill_count: 8
+- id: Legal
+  name: Legal, risk & compliance
+  description: Contracts, policies, obligations and enterprise risk
+  owner: Legal / Compliance Lead
+  skill_count: 7
+- id: Revenue
+  name: Revenue operations
+  description: Sales operations, enablement and revenue process support
+  owner: Revenue Operations
+  skill_count: 6
+- id: PMO
+  name: PMO & process excellence
+  description: Portfolio reporting, project delivery and continuous improvement
+  owner: PMO / Transformation Lead
+  skill_count: 7
+- id: Comms
+  name: Communications & knowledge
+  description: Enterprise knowledge, content and stakeholder communications
+  owner: Corporate Communications
+  skill_count: 6

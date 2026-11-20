@@ -1,0 +1,41 @@
+{
+  "name": "AP three-way match exception — draft, approve, redeem",
+  "why": "Exercises the full governed path on a Critical-risk finance capability: permission resolution, a denied approval, a granted one-shot approval, replay rejection, and a release gate that stays blocked.",
+  "skill_id": "FIN-02",
+  "requested_level": "A2",
+  "proposed_action": "flag invoice INV-4471 for the AP exception queue with variance rationale",
+  "requester": "ap.clerk@example.com",
+  "approver": "ap.controller@example.com",
+  "approver_role": "AP controller",
+  "evidence": {
+    "proposed_action": "flag invoice INV-4471 for the AP exception queue with variance rationale",
+    "skill_id_and_version": "FIN-02@1.0.0",
+    "cited_evidence": ["invoice:INV-4471", "po:PO-88120", "receipt:GR-3391"],
+    "risk_tier": "Critical",
+    "reversibility": "reversible",
+    "rollback_path": "remove flag and reopen exception"
+  },
+  "release_evidence": {
+    "named_process_owner": true,
+    "workflow_baseline": true,
+    "trusted_data_available": true,
+    "access_scope_defined": true,
+    "non_ai_fallback_defined": true,
+    "process_segmentation_defined": true,
+    "skill_golden_set": true,
+    "adverse_and_failure_path_tests": false,
+    "security_review": true,
+    "privacy_review": false,
+    "protected_action_proof": true,
+    "signed_acceptance": false
+  },
+  "expectations": {
+    "effective_level": "A1",
+    "downgrade_reported": true,
+    "mode": "draft_only",
+    "approval_without_evidence": "denied",
+    "approval_with_evidence": "granted",
+    "second_redemption": "denied",
+    "release_decision": "blocked"
+  }
+}

@@ -1,0 +1,3189 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/skills/v1
+skills:
+- id: FND-01
+  domain: Foundation
+  name: Identity & authorization resolver
+  purpose: Resolve requesting actor, purpose, group entitlements and minimum data/tool scopes.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Principal, purpose, resource
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Scope decision + rationale
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Unauthorized operations blocked
+  acceptance: Denied resources produce no tool invocation; all grants have a traceable policy
+    decision.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: Deterministic
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-02
+  domain: Foundation
+  name: Enterprise knowledge retrieval
+  purpose: Retrieve and cite current approved policies and procedural evidence with access
+    trimming.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Question, corpus, access claims
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Cited answer + provenance
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Citation validity and answer usefulness
+  acceptance: Every factual claim resolves to an accessible source version; stale sources
+    are labeled.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 5
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-03
+  domain: Foundation
+  name: Structured extraction & validation
+  purpose: Turn business documents and messages into schema-valid records without silent field
+    invention.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Documents, schema, constraints
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Validated fields + confidence + missingness
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Field-level precision and completeness
+  acceptance: Required fields failing schema checks are rejected, not guessed.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 5
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-04
+  domain: Foundation
+  name: Policy & obligation checker
+  purpose: Evaluate proposed activity against versioned internal rules and escalation logic.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Proposed action, policy set, context
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Decision recommendation + referenced clauses
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Policy decision agreement
+  acceptance: Conflicting or absent policies yield review-required status and supporting evidence.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-05
+  domain: Foundation
+  name: Workflow classification & routing
+  purpose: Classify incoming work, assign owner, urgency and escalation category.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Request, taxonomy, current queues
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Routing recommendation + evidence
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Correct routing rate
+  acceptance: Ambiguous priority or ownership routes to triage rather than silent auto-assignment.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 5
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-06
+  domain: Foundation
+  name: Human approval orchestration
+  purpose: Package decision evidence, obtain authorized approval and enforce expiry and separation
+    of duties.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Critical
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Action proposal, approver policy, evidence
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Signed approve/deny record
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Approval coverage
+  acceptance: No protected write executes without a matching live approval token.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: Deterministic
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 5
+    effort: 4
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: FND-07
+  domain: Foundation
+  name: Tool execution & transaction guard
+  purpose: Validate parameters, idempotency, write scope, limits and post-conditions at the
+    execution boundary.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Critical
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved action, tool schema, limits
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Execution receipt + verify/rollback status
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Unauthorized writes and duplicate rate
+  acceptance: Replay of the same idempotency key does not cause duplicate business writes.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: Deterministic
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 5
+    effort: 4
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: FND-08
+  domain: Foundation
+  name: Audit, trace & provenance recorder
+  purpose: Persist non-repudiable event evidence for inputs, sources, model/tool versions
+    and final state.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Execution envelope, citations, event IDs
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Tamper-evident trace + artifact IDs
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Trace completeness
+  acceptance: Every action reconstructs actor, version, decision, tools, approver and result.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: Deterministic
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-09
+  domain: Foundation
+  name: Quality evaluator & regression runner
+  purpose: Run golden cases, safety adversarial tests, drift checks and release-blocking scoring.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Test corpus, skill version, thresholds
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Evaluation report + go/no-go
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Critical test pass rate
+  acceptance: New releases fail the gate when critical controls regress below thresholds.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-10
+  domain: Foundation
+  name: Sensitive data protection
+  purpose: Detect, minimize, redact and apply retention/deletion policies to protected information.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Content, data classification, jurisdiction rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Minimized payload + access/redaction record
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Sensitive data leakage incidents
+  acceptance: Forbidden fields do not reach models, logs, exports or unauthorized users.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-11
+  domain: Foundation
+  name: Task decomposition & handoff
+  purpose: Break a requested outcome into bounded, verifiable steps with explicit ownership
+    and retry rules.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Goal, constraints, skills available
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Execution plan + typed handoffs
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Handoff rework rate
+  acceptance: Every child step declares inputs, completion evidence, timeout and owning function.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 5
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FND-12
+  domain: Foundation
+  name: Outcome measurement & feedback
+  purpose: Bind each deployment to baseline, adoption, cost, error and business outcome telemetry.
+  owner: Platform / AI Governance
+  wave: 0
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Workflow events, baseline, unit cost
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Outcome scorecard + improvement backlog
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Realized value vs baseline
+  acceptance: Dashboard separates observed outcomes from estimated benefits and records denominators.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Identity, policy engine, search, event bus, observability
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 5
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-01
+  domain: Comms
+  name: Enterprise content discovery
+  purpose: Find trusted knowledge across approved sites and return concise cited synthesis.
+  owner: Corporate Communications
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Question, user scopes, repositories
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Cited synthesis + document links
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Knowledge findability
+  acceptance: Each reference is accessible to the requester and version is visible.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-02
+  domain: Comms
+  name: Announcement drafting
+  purpose: Draft leadership or policy announcements from approved talking points.
+  owner: Corporate Communications
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved facts, audience, brand guide
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Draft + fact-check checklist
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Draft preparation time
+  acceptance: Publication requires named comms owner and factual signoff.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-03
+  domain: Comms
+  name: Meeting minutes and decisions
+  purpose: Extract action items, explicit decisions, owners and deadlines from consented records.
+  owner: Corporate Communications
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Consented meeting transcript, agenda
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Minutes + decision log
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Action capture accuracy
+  acceptance: Unknown owners or dates are flagged and never invented.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-01
+  domain: Finance
+  name: Accounts payable invoice capture
+  purpose: Extract invoice header, tax, line items and references for validation.
+  owner: Finance Controller
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Invoice, vendor master, schema
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Structured invoice + exceptions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Straight-through extraction accuracy
+  acceptance: Invalid amounts, duplicate invoices and missing tax fields are flagged, not
+    posted.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-02
+  domain: Finance
+  name: Three-way match exception triage
+  purpose: Compare invoice, purchase order and receipt and explain mismatches.
+  owner: Finance Controller
+  wave: 1
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Invoice, PO, goods receipt
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Variance report + owner queue
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: AP exception resolution time
+  acceptance: No payment or ledger entry is authorized by a model-only match.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-07
+  domain: Finance
+  name: Budget variance explainer
+  purpose: Explain actuals-versus-plan drivers with reconciled segment context and caveats.
+  owner: Finance Controller
+  wave: 1
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved actuals, budget, mappings
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Narrative + variance bridge
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Variance explanation time
+  acceptance: Totals reconcile to published source; unsupported causal claims are suppressed.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HR-01
+  domain: HR
+  name: HR policy Q&A
+  purpose: Answer employee policy questions from approved documents with geographic applicability.
+  owner: HR Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Employee question, jurisdiction, approved policies
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Cited answer + referral
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: First-contact resolution
+  acceptance: Out-of-scope legal or policy conflicts route to HR; answers cite active policy
+    versions.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HR-03
+  domain: HR
+  name: Recruitment intake & job-description drafter
+  purpose: Transform an approved role request into structured requirements and inclusive job
+    posting drafts.
+  owner: HR Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Hiring requisition, role rubric
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Job description + review packet
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Requisition preparation time
+  acceptance: Draft excludes unapproved selection criteria and is approved before publication.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HR-06
+  domain: HR
+  name: HR case triage
+  purpose: Categorize leave, payroll questions, benefits or employee relations requests with
+    strict privacy.
+  owner: HR Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Employee case, case policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Private triage + destination
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Sensitive-case routing accuracy
+  acceptance: Employee relations and protected-category cases never enter general queues.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-01
+  domain: HSE
+  name: Safety policy retrieval
+  purpose: Answer process and safety-policy questions with applicability and source evidence.
+  owner: HSE & Quality Leader
+  wave: 1
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Question, location, approved HSE procedures
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Cited guidance + escalate marker
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Policy retrieval accuracy
+  acceptance: Missing or conflicting procedures trigger stop-and-escalate, not improvised
+    instruction.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-02
+  domain: HSE
+  name: Near-miss and incident intake
+  purpose: Capture structured reports while retaining original account and privacy restrictions.
+  owner: HSE & Quality Leader
+  wave: 1
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Reporter narrative, incident taxonomy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Draft incident record + missing fields
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Report completeness
+  acceptance: Safety classification is explicitly provisional until qualified personnel validate.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-01
+  domain: IT
+  name: IT service desk intake
+  purpose: Parse ticket descriptions, identify service, severity and route to correct resolver
+    group.
+  owner: IT Operations / Security
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Request, catalog, asset context
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Normalized ticket + assignment
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Mean time to assignment
+  acceptance: Severity overrides require human validation for production/security incidents.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: IT-02
+  domain: IT
+  name: Technical knowledge assistant
+  purpose: Provide cited troubleshooting steps restricted to supported, approved runbooks.
+  owner: IT Operations / Security
+  wave: 1
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Problem statement, service/asset
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Diagnostic plan + evidence
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Self-service success rate
+  acceptance: Commands capable of changing state are marked as non-executable suggestions.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-03
+  domain: IT
+  name: Access request preflight
+  purpose: Check entitlement requests against RBAC, approvals, separation-of-duties and expiry.
+  owner: IT Operations / Security
+  wave: 1
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Identity, requested role, policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Eligibility report + approval route
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Access rework rate
+  acceptance: No access is granted with a failed role or approval check.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-04
+  domain: IT
+  name: Incident correlation & briefing
+  purpose: Summarize alerts, probable blast radius and incident timeline for on-call responders.
+  owner: IT Operations / Security
+  wave: 1
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Monitoring alerts, CMDB, logs
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Cited incident brief + hypotheses
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Time to situational awareness
+  acceptance: Hypotheses are labeled; no unapproved remediation is executed.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: LGL-01
+  domain: Legal
+  name: Contract clause extraction
+  purpose: Extract dates, parties, obligations and risk clauses from executed or draft agreements.
+  owner: Legal / Compliance Lead
+  wave: 1
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Contracts, clause taxonomy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Structured clause inventory + citations
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Clause extraction precision
+  acceptance: Each extracted obligation has source span and legal reviewer confirmation.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: OFC-01
+  domain: Office
+  name: Workplace service request triage
+  purpose: Classify facilities, amenities, supplies and visitor requests against service catalog.
+  owner: Workplace Services
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Workplace request, location, catalog
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Service ticket + ownership
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Workplace response time
+  acceptance: Restricted access and safety requests route to trained staff.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: OFC-02
+  domain: Office
+  name: Meeting logistics coordinator
+  purpose: Draft agenda, room, attendee and equipment plans across available resources.
+  owner: Workplace Services
+  wave: 1
+  risk: Low
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Meeting brief, calendars, rooms
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Logistics plan + booking approval
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Planning time saved
+  acceptance: External invitations or chargeable reservations need organizer confirmation.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-01
+  domain: PMO
+  name: Project intake and scope analyzer
+  purpose: Turn problem statements into outcomes, users, constraints, risks and measurable
+    criteria.
+  owner: PMO / Transformation Lead
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Project request, strategy, constraints
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Draft charter + unresolved questions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Intake-to-approval time
+  acceptance: Charter distinguishes facts from assumptions and has named accountable owner.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-02
+  domain: PMO
+  name: Requirements quality reviewer
+  purpose: Find untestable, contradictory and unowned requirements with proposed rewrites.
+  owner: PMO / Transformation Lead
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Requirements, standards, dependencies
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Requirements QA report
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Acceptance criteria coverage
+  acceptance: All critical requirements have test, owner and failure behavior.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-03
+  domain: PMO
+  name: Status and dependency synthesizer
+  purpose: Combine delivery events into traceable status, milestones, blockers and decisions.
+  owner: PMO / Transformation Lead
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Project trackers, milestones, risks
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Status report + evidence links
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Status reporting effort
+  acceptance: Green status cannot be inferred from missing updates; stale inputs flagged.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: REV-01
+  domain: Revenue
+  name: CRM hygiene assistant
+  purpose: Detect duplicate, stale and incomplete account/opportunity data.
+  owner: Revenue Operations
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: CRM records, validation rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Correction suggestions + exceptions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: CRM completeness
+  acceptance: Automatic edits restricted to explicitly authorized low-risk fields and dedupe
+    rules.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: REV-02
+  domain: Revenue
+  name: Sales meeting brief
+  purpose: Create an evidence-backed meeting preparation brief from permitted account context.
+  owner: Revenue Operations
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Customer history, opportunity, products
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Brief + questions + source links
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Rep preparation time
+  acceptance: Confidential or unverified claims are withheld.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-01
+  domain: Supply
+  name: Purchase requisition completeness
+  purpose: Validate business need, category, charge code and sourcing documentation.
+  owner: Supply Chain Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Requisition, procurement rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Completed draft + gaps
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Requisition rework
+  acceptance: No request bypasses delegated spend authority or sourcing thresholds.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-02
+  domain: Supply
+  name: Supplier onboarding preflight
+  purpose: Check required supplier documentation, tax, sanctions and master data fields.
+  owner: Supply Chain Operations
+  wave: 1
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Vendor packet, risk criteria
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Gap checklist + risk flags
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Supplier onboarding cycle time
+  acceptance: Sanctions, beneficial ownership or risk flags route to trained reviewers.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-01
+  domain: Support
+  name: Omnichannel case normalization
+  purpose: Convert email, chat, portal and call notes to standard cases.
+  owner: Support Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Customer interaction, account, taxonomy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Deduplicated case + priority proposal
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Case ingestion accuracy
+  acceptance: Customer identity, attachments and consent are verified before case creation.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: CSP-02
+  domain: Support
+  name: Knowledge-grounded reply draft
+  purpose: Draft case responses using trusted product, policy and warranty content.
+  owner: Support Operations
+  wave: 1
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Case context, authorized knowledge
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Reply draft + references
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: First response time
+  acceptance: Draft never promises warranty, refund, fix or SLA outside policy.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-03
+  domain: Support
+  name: Case diagnostic assistant
+  purpose: Suggest next troubleshooting step and missing diagnostics to resolver.
+  owner: Support Operations
+  wave: 1
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Case, supported troubleshooting tree
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Ordered troubleshooting checklist
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Mean time to resolution
+  acceptance: No unsafe command or unsupported remediation is offered as executable action.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-04
+  domain: Comms
+  name: Knowledge article maintenance
+  purpose: Find outdated, duplicate or poorly structured articles for owner review.
+  owner: Corporate Communications
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Knowledge corpus, usage, version rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Update queue + rewrite drafts
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Knowledge freshness
+  acceptance: No article is published automatically with unverified procedural instructions.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-05
+  domain: Comms
+  name: Stakeholder feedback synthesis
+  purpose: Cluster comments and survey responses into themes and action proposals.
+  owner: Corporate Communications
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Survey feedback, engagement context
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Theme analysis + source exemplars
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Feedback-to-action time
+  acceptance: Representative sampling and small-cell privacy thresholds are checked.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-03
+  domain: Finance
+  name: Employee expense policy check
+  purpose: Compare expense claims, receipts and policy limits; draft exceptions.
+  owner: Finance Controller
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Claim, receipts, policy, role
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Compliance recommendation + evidence
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Expense review time
+  acceptance: Policy overrides and reimbursements require delegated authority approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 4
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-04
+  domain: Finance
+  name: AR collections prioritizer
+  purpose: Group overdue accounts by age, dispute and relationship context for collector review.
+  owner: Finance Controller
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: AR aging, promises, dispute status
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Collector worklist + draft outreach
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Days sales outstanding
+  acceptance: Sensitive collection messages are reviewed before customer delivery.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-05
+  domain: Finance
+  name: Financial reconciliation assistant
+  purpose: Spot ledger-to-subledger differences and propose investigatory matches.
+  owner: Finance Controller
+  wave: 2
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Ledger, subledger, period rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Exception workpaper + cited lines
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Reconciliation cycle time
+  acceptance: Unexplained differences remain open; no journal entry is auto-posted.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 4
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-06
+  domain: Finance
+  name: Month-end close coordinator
+  purpose: Track close checklist, evidence completeness, owners and overdue dependencies.
+  owner: Finance Controller
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Close calendar, tasks, evidence
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Close status + exception escalation
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Days to close
+  acceptance: No control attestation is recorded without approver signature and evidence.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: HR-02
+  domain: HR
+  name: Employee onboarding coordinator
+  purpose: Orchestrate approved onboarding tasks across HR, IT, facilities and hiring manager.
+  owner: HR Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Signed hire event, checklist, role
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Checklist + task assignments
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Onboarding time to readiness
+  acceptance: No account or equipment order is triggered outside approved role and joiner
+    workflow.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: HR-04
+  domain: HR
+  name: Candidate interview scheduling
+  purpose: Coordinate opt-in candidate and panel availability without making selection decisions.
+  owner: HR Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Candidate consent, calendars, stage
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Proposed interview slots + notices
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Scheduling turnaround
+  acceptance: No interview invite is sent without consent and coordinator authorization.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: HR-05
+  domain: HR
+  name: Learning needs mapper
+  purpose: Map role competency gaps to approved training catalog and build a draft learning
+    plan.
+  owner: HR Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Role competency model, learning records
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Learning plan with evidence
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Training plan adoption
+  acceptance: Missing competency evidence is surfaced and manager validates the plan.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HR-07
+  domain: HR
+  name: Workforce data quality checker
+  purpose: Find duplicate, stale and contradictory master data records for steward correction.
+  owner: HR Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Authorized HR datasets, rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Exception register + suggested correction
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Master data exception rate
+  acceptance: Any personal record correction requires authorized steward review.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-03
+  domain: HSE
+  name: Corrective action tracker
+  purpose: Follow up assigned corrective actions, due dates, evidence and closure authority.
+  owner: HSE & Quality Leader
+  wave: 2
+  risk: Critical
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Action register, owners, proof
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Status digest + escalation
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Overdue safety actions
+  acceptance: No safety-critical corrective action is auto-closed without owner verification.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: HSE-04
+  domain: HSE
+  name: Training and permit readiness check
+  purpose: Check required certifications and approved permit prerequisites before work planning.
+  owner: HSE & Quality Leader
+  wave: 2
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Role, job task, training, permit rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Readiness gaps + human go/no-go packet
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Expired training rate
+  acceptance: System cannot issue a permit-to-work or safety authorization.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-05
+  domain: HSE
+  name: Hazard observation clustering
+  purpose: Cluster repeat observations to help specialists identify exposure patterns.
+  owner: HSE & Quality Leader
+  wave: 2
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: De-identified observations, categories
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Trend report + source examples
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Time to detect recurring hazards
+  acceptance: Aggregates never suppress rare high-consequence incidents.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-07
+  domain: HSE
+  name: Audit and inspection preparation
+  purpose: Assemble relevant controls, previous findings, records and action status.
+  owner: HSE & Quality Leader
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Audit scope, control catalog, evidence
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Evidence index + gaps
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Audit preparation effort
+  acceptance: Evidence is immutable/read-only and omissions are surfaced.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HSE-08
+  domain: HSE
+  name: Safety communication drafter
+  purpose: Draft site-wide safety alerts after qualified safety officer validates incident
+    facts.
+  owner: HSE & Quality Leader
+  wave: 2
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved incident facts, audience
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Safety notice draft
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Time to communicate validated lessons
+  acceptance: No draft is distributed without HSE approval; personal identifiers are removed.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-05
+  domain: IT
+  name: Change risk assessor
+  purpose: Assess planned change dependencies, rollback, customer impact and approval policy.
+  owner: IT Operations / Security
+  wave: 2
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Change proposal, CMDB, test results
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Risk score rationale + change checklist
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Change failure rate
+  acceptance: High-risk change never advances without a named approver and rollback proof.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-06
+  domain: IT
+  name: Software license optimization
+  purpose: Identify unused or mismatched entitlements and recommend reallocation.
+  owner: IT Operations / Security
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Usage signals, licenses, contracts
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Reclamation candidates + savings estimate
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Unused licenses reduced
+  acceptance: Cost savings are estimates until finance confirms; changes require owner review.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-07
+  domain: IT
+  name: Vulnerability remediation coordinator
+  purpose: Link findings to asset owners, patches, compensating controls and due dates.
+  owner: IT Operations / Security
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Scanner findings, CMDB, policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Prioritized remediation tickets
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Remediation SLA attainment
+  acceptance: Critical findings never auto-close without independent verification.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: LGL-02
+  domain: Legal
+  name: Contract deviation checker
+  purpose: Compare proposed terms to approved playbooks and mark deviations.
+  owner: Legal / Compliance Lead
+  wave: 2
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Draft terms, templates, negotiation policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Deviation register + fallback clauses
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Legal review turnaround
+  acceptance: AI does not accept binding legal terms or waive non-standard clauses.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: LGL-03
+  domain: Legal
+  name: Regulatory change watch intake
+  purpose: Collect sourced regulatory updates for counsel to assess applicability and impact.
+  owner: Legal / Compliance Lead
+  wave: 2
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Regulator notices, legal entity map
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Change brief + watchlist
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Time to assess regulatory change
+  acceptance: Only verified primary notices are treated as source facts; relevance requires
+    review.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 3
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: LGL-04
+  domain: Legal
+  name: Compliance evidence collection
+  purpose: Build evidence requests and index control artifacts for compliance owners.
+  owner: Legal / Compliance Lead
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Controls, evidence requests, repositories
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Evidence manifest + gap list
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Evidence collection cycle time
+  acceptance: Protected records remain entitlement-trimmed and source version is preserved.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: LGL-05
+  domain: Legal
+  name: Third-party risk questionnaire assistant
+  purpose: Map vendor answers to approved control requirements and missing proofs.
+  owner: Legal / Compliance Lead
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Risk questionnaire, policies, vendor proofs
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Exception packet + risk rationale
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Third-party review cycle time
+  acceptance: Only human control owners accept residual risks.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: OFC-03
+  domain: Office
+  name: Facility maintenance follow-up
+  purpose: Monitor approved work orders and escalate critical maintenance conditions.
+  owner: Workplace Services
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Maintenance orders, location, SLA
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Escalation digest + proof request
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Overdue work orders
+  acceptance: Critical facility hazard is immediately routed to on-call authority.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: OFC-05
+  domain: Office
+  name: Travel policy and itinerary preflight
+  purpose: Check proposed travel against policy, duty of care and approval rules.
+  owner: Workplace Services
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Trip plan, travel policy, traveler role
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Compliance check + approval packet
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Travel booking rework
+  acceptance: No booking or out-of-policy spend without traveler/manager authorization.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: OFC-06
+  domain: Office
+  name: Visitor onboarding checklist
+  purpose: Prepare badge, NDA, escort and access needs subject to facility policy.
+  owner: Workplace Services
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Visit invitation, host, access requirements
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Visit checklist + request
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Visitor check-in time
+  acceptance: No physical access is activated without security approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: PMO-04
+  domain: PMO
+  name: Risk and issue early warning
+  purpose: Identify overdue mitigations, blocked paths and schedule slippage signals.
+  owner: PMO / Transformation Lead
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: RAID log, dependencies, plans
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Early-warning list + owner actions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Unplanned milestone slippage
+  acceptance: Escalations include evidence, time window and impact, not unsupported probabilities.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-05
+  domain: PMO
+  name: Process mining opportunity triage
+  purpose: Analyze approved process logs to identify delays, rework and automation candidates.
+  owner: PMO / Transformation Lead
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Event logs, process map, data quality
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Opportunity map + estimated benefit
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Cycle-time reduction
+  acceptance: Opportunity ranking labels expected value as estimates until pilot measurement.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 3
+    reuse: 4
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-06
+  domain: PMO
+  name: Change impact & readiness assessor
+  purpose: Evaluate user groups, process impacts, training and cutover dependencies.
+  owner: PMO / Transformation Lead
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Change proposal, stakeholder map
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Readiness scorecard + plan
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Adoption at 30/90 days
+  acceptance: Missing stakeholder signoffs block readiness claims.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: REV-03
+  domain: Revenue
+  name: Proposal and quote preflight
+  purpose: Check proposals for pricing authority, terms, scope and required attachments.
+  owner: Revenue Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Quote, price book, proposal template
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Readiness checklist + variance flags
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Quote rework
+  acceptance: No price exception or contractual promise is issued without authorized approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: REV-04
+  domain: Revenue
+  name: Pipeline change explanation
+  purpose: Analyze stage movements and forecast differences with evidence.
+  owner: Revenue Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: CRM snapshots, definitions
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Variance explanation + caveats
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Forecast review effort
+  acceptance: No causal attribution is stated without supporting record change.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: REV-05
+  domain: Revenue
+  name: Renewal readiness monitor
+  purpose: Surface upcoming renewals, service issues and renewal owner assignments.
+  owner: Revenue Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Contract expiries, usage, support
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Renewal worklist + alerts
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Renewal preparation coverage
+  acceptance: External price, discount and renewal offers remain human-approved.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: REV-06
+  domain: Revenue
+  name: Customer handoff packet
+  purpose: Compile verified commitments and onboarding dependencies from sales to delivery.
+  owner: Revenue Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Signed order, acceptance criteria, promises
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Transition packet + open risks
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Handoff rework
+  acceptance: Unwritten sales commitments are labeled unverified and flagged to owners.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, CPQ, billing, customer data
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-03
+  domain: Supply
+  name: RFQ and sourcing pack draft
+  purpose: Generate comparable scope, questions and criteria from approved requirements.
+  owner: Supply Chain Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved sourcing brief, templates
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: RFQ draft + evaluation rubric
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Sourcing cycle time
+  acceptance: No supplier is selected or invited before procurement approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-04
+  domain: Supply
+  name: Bid comparison analyzer
+  purpose: Normalize supplier quotations and expose conditions, assumptions and variance.
+  owner: Supply Chain Operations
+  wave: 2
+  risk: Critical
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Supplier quotes, evaluation rubric
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Bid tabulation + gaps
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Bid evaluation time
+  acceptance: Final award selection is human-owned; missing quote terms remain visible.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 4
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-05
+  domain: Supply
+  name: Purchase order change checker
+  purpose: Detect mismatched commitments, thresholds, changed specifications and approvals.
+  owner: Supply Chain Operations
+  wave: 2
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Change request, existing PO, policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Change risk packet
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: PO rework and exception rate
+  acceptance: No order amendment is committed without authority and supplier verification.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-06
+  domain: Supply
+  name: Inventory anomaly detector
+  purpose: Spot stockouts, overstock, negative balances and unexpected movement patterns.
+  owner: Supply Chain Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Inventory snapshot, movement history
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Exception worklist
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Inventory data accuracy
+  acceptance: Recommendations explain timestamp and source limitations; no phantom stock adjustments.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-04
+  domain: Support
+  name: SLA risk monitor
+  purpose: Identify at-risk cases and notify ownership before breach.
+  owner: Support Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A3
+  side_effects: Pre-authorized, reversible low-risk action
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: SLA terms, tickets, queue
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: At-risk list + escalation
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Preventable SLA breach rate
+  acceptance: Escalation thresholds and calendars are policy-driven and versioned.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: CSP-05
+  domain: Support
+  name: Sentiment and escalation triage
+  purpose: Identify distress, recurring failure, account sensitivity and appropriate handoff.
+  owner: Support Operations
+  wave: 2
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Interactions, account context
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Escalation recommendation
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Time to specialist engagement
+  acceptance: Sentiment does not replace severity or customer-specific escalation policy.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-06
+  domain: Support
+  name: Resolution quality checker
+  purpose: Verify closure notes, agreed fixes, evidence and follow-up completeness.
+  owner: Support Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Resolved ticket, closure policy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: QA finding + reopen suggestion
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Reopened cases
+  acceptance: Cases with unverified customer impact cannot be falsely marked resolved.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 5
+    reuse: 3
+    effort: 2
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-07
+  domain: Support
+  name: Voice-of-customer synthesizer
+  purpose: Aggregate complaints, churn triggers and feature feedback into traceable themes.
+  owner: Support Operations
+  wave: 2
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Cases, feedback, account segments
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Theme report + citations
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Actionable feedback adoption
+  acceptance: Themes preserve sampled evidence and disclose biased/low-volume data.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: COM-06
+  domain: Comms
+  name: Localization and accessibility review
+  purpose: Adapt approved communications for language, clarity and accessible formatting.
+  owner: Corporate Communications
+  wave: 3
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved content, target locale, style guide
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Localized drafts + accessibility check
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Localization turnaround
+  acceptance: Sensitive regulatory meanings are escalated for bilingual domain review.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Intranet, document repository, messaging, CMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: FIN-08
+  domain: Finance
+  name: Cash forecast scenario drafter
+  purpose: Draft scenarios using validated receivables, payables and modeled assumptions.
+  owner: Finance Controller
+  wave: 3
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Cash flows, forecast assumptions
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Scenario range + assumptions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Forecast error
+  acceptance: Forecasts show confidence and are never used to execute transfers automatically.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, finance data mart, AP/AR, expense platform
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 3
+    reuse: 3
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: HR-08
+  domain: HR
+  name: Offboarding task assurance
+  purpose: Track deprovisioning, asset recovery and payroll handoffs after a validated separation
+    event.
+  owner: HR Operations
+  wave: 3
+  risk: Critical
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Verified separation, asset/access lists
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Closeout status + exception report
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Overdue offboarding tasks
+  acceptance: Separation event validity and dual-control requirements are checked before actions.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: HRIS, ATS, LMS, employee knowledge base
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 3
+    effort: 4
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: HSE-06
+  domain: HSE
+  name: Environmental reporting preflight
+  purpose: Validate completeness, periods, units and evidence before environmental report
+    review.
+  owner: HSE & Quality Leader
+  wave: 3
+  risk: Critical
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Measurements, reporting schema, records
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Exception report + draft package
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Reporting rework rate
+  acceptance: Unit conversions and missing values are explicit; no fabricated measurements.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: EHS system, incident registry, permits, training records
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 3
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: IT-08
+  domain: IT
+  name: Approved runbook executor
+  purpose: Execute narrowly pre-approved, reversible low-risk operations with pre/post checks.
+  owner: IT Operations / Security
+  wave: 3
+  risk: Moderate
+  autonomy_requested: A3
+  side_effects: Pre-authorized, reversible low-risk action
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Authorized runbook, health state
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Receipt + status + rollback evidence
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Auto-remediation success rate
+  acceptance: Run only allowlisted commands; abort on failed health, cap or idempotency checks.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ITSM, IAM, CMDB, monitoring, endpoint management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 3
+    reuse: 3
+    effort: 5
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: LGL-06
+  domain: Legal
+  name: Policy lifecycle management
+  purpose: Review owner, approval, publication date and conflicts across policy versions.
+  owner: Legal / Compliance Lead
+  wave: 3
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Policy repository, owner registry
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Policy change queue + version history
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Overdue policy reviews
+  acceptance: No policy becomes effective without designated owner and legal/compliance signoff.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: LGL-07
+  domain: Legal
+  name: Enterprise risk register assistant
+  purpose: Draft risk statements, controls, owners and evidence links from validated events.
+  owner: Legal / Compliance Lead
+  wave: 3
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Incidents, audit findings, risk taxonomy
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Risk register suggestion
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Risk register freshness
+  acceptance: Scoring and acceptance of high risk requires accountable manager approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CLM, GRC, policy repository, case management
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: OFC-04
+  domain: Office
+  name: Office supplies replenishment
+  purpose: Identify reorder candidates using policy, consumption and thresholds.
+  owner: Workplace Services
+  wave: 3
+  risk: Moderate
+  autonomy_requested: A3
+  side_effects: Pre-authorized, reversible low-risk action
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Inventory, min/max, approved catalogs
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Reorder recommendation
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Stockout rate
+  acceptance: Automatic ordering limited to pre-approved low-value spend caps.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 4
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: OFC-07
+  domain: Office
+  name: Workplace utilization insights
+  purpose: Summarize bookings and occupancy trends without identifying individuals.
+  owner: Workplace Services
+  wave: 3
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Aggregated bookings, seat counts
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Utilization report + recommendations
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Space utilization
+  acceptance: Data is aggregated to approved minimum group size.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: Facilities platform, bookings, inventory, work orders
+  status: Proposed / unvalidated
+  scores:
+    impact: 3
+    readiness: 4
+    reuse: 3
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: PMO-07
+  domain: PMO
+  name: Benefits realization tracker
+  purpose: Compare outcome baselines, realized performance, spend and adoption.
+  owner: PMO / Transformation Lead
+  wave: 3
+  risk: Moderate
+  autonomy_requested: A0
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Approved business case, metrics, actuals
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Benefits ledger + variance narrative
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Realized benefit vs commitment
+  acceptance: Calculations include baseline, denominator, observation window and data lineage.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: PPM, issue tracker, workflow platform, reporting
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 4
+    effort: 3
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: SCM-07
+  domain: Supply
+  name: Shipment exception coordinator
+  purpose: Summarize delay, damage, customs or handoff exceptions and route mitigation.
+  owner: Supply Chain Operations
+  wave: 3
+  risk: High
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Orders, status events, transport rules
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Shipment alert + action packet
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Exception recovery lead time
+  acceptance: No carrier reroute or contractual commitment without approved authority.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 4
+    effort: 4
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json
+- id: SCM-08
+  domain: Supply
+  name: Demand and replenishment scenario
+  purpose: Create scenario-based replenishment proposals from forecast and policy constraints.
+  owner: Supply Chain Operations
+  wave: 3
+  risk: High
+  autonomy_requested: A1
+  side_effects: None — read or draft only
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Demand history, lead times, caps
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Suggested replenishment + assumptions
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Fill rate vs inventory holding cost
+  acceptance: Uncertain forecasts and unvalidated lead times are exposed, not hidden.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: ERP, procurement suite, supplier portal, WMS/TMS
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 4
+    effort: 4
+  autonomy_exceeds_pack_ceiling: false
+  source: src/registry/source.json
+- id: CSP-08
+  domain: Support
+  name: Service recovery coordinator
+  purpose: Coordinate incident-driven customer notifications and compensation proposal approvals.
+  owner: Support Operations
+  wave: 3
+  risk: Critical
+  autonomy_requested: A2
+  side_effects: Explicitly approved, scoped system write
+  trigger: Authorized request, governed event or scheduled workflow with an explicit purpose.
+  inputs: Confirmed incident, commitments, affected accounts
+  preconditions: Authenticated actor; approved data sources; policy version pinned; schema
+    validated.
+  outputs: Approved response plan + task log
+  output_contract: Structured result with status, source references, confidence/unknowns,
+    owner, next action and trace_id.
+  metric: Recovery lead time
+  acceptance: Compensation, credits and external commitments require business owner approval.
+  escalation: Stop and route to an authorized human when evidence is missing, confidence is
+    low, permissions fail, or a policy conflict is detected.
+  fail_safe: Fail closed on denied permissions, untrusted inputs or failed validations; human
+    escalation with intact evidence.
+  data_handling: Data minimized to purpose, tenancy and role; sensitive fields redacted per
+    classification.
+  execution_mode: 'Hybrid: deterministic policy + bounded AI'
+  system_categories: CRM, help desk, knowledge base, ticketing
+  status: Proposed / unvalidated
+  scores:
+    impact: 5
+    readiness: 3
+    reuse: 3
+    effort: 4
+  autonomy_exceeds_pack_ceiling: true
+  source: src/registry/source.json

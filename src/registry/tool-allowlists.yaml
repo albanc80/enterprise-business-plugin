@@ -1,0 +1,677 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/tool-allowlists/v1
+note: Derived from each contract's system_categories. Enforcement is delegated — see src/policies/tool-allowlists.yaml.
+skills:
+- skill: COM-01
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A0
+- skill: COM-02
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A1
+- skill: COM-03
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A1
+- skill: COM-04
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A1
+- skill: COM-05
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A0
+- skill: COM-06
+  categories:
+  - cms
+  - document repository
+  - intranet
+  - messaging
+  autonomy_requested: A1
+- skill: CSP-01
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A2
+- skill: CSP-02
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A1
+- skill: CSP-03
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A0
+- skill: CSP-04
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A3
+- skill: CSP-05
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A1
+- skill: CSP-06
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A1
+- skill: CSP-07
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A0
+- skill: CSP-08
+  categories:
+  - crm
+  - help desk
+  - knowledge base
+  - ticketing
+  autonomy_requested: A2
+- skill: FIN-01
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FIN-02
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FIN-03
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FIN-04
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FIN-05
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FIN-06
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A2
+- skill: FIN-07
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A0
+- skill: FIN-08
+  categories:
+  - ap/ar
+  - erp
+  - expense platform
+  - finance data mart
+  autonomy_requested: A1
+- skill: FND-01
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-02
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-03
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A1
+- skill: FND-04
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-05
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A1
+- skill: FND-06
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A2
+- skill: FND-07
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A2
+- skill: FND-08
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-09
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-10
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: FND-11
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A1
+- skill: FND-12
+  categories:
+  - event bus
+  - identity
+  - observability
+  - policy engine
+  - search
+  autonomy_requested: A0
+- skill: HR-01
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A0
+- skill: HR-02
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A2
+- skill: HR-03
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A1
+- skill: HR-04
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A2
+- skill: HR-05
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A1
+- skill: HR-06
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A1
+- skill: HR-07
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A1
+- skill: HR-08
+  categories:
+  - ats
+  - employee knowledge base
+  - hris
+  - lms
+  autonomy_requested: A2
+- skill: HSE-01
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A0
+- skill: HSE-02
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A1
+- skill: HSE-03
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A2
+- skill: HSE-04
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A0
+- skill: HSE-05
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A0
+- skill: HSE-06
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A1
+- skill: HSE-07
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A1
+- skill: HSE-08
+  categories:
+  - ehs system
+  - incident registry
+  - permits
+  - training records
+  autonomy_requested: A1
+- skill: IT-01
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A2
+- skill: IT-02
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A0
+- skill: IT-03
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A1
+- skill: IT-04
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A0
+- skill: IT-05
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A1
+- skill: IT-06
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A1
+- skill: IT-07
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A2
+- skill: IT-08
+  categories:
+  - cmdb
+  - endpoint management
+  - iam
+  - itsm
+  - monitoring
+  autonomy_requested: A3
+- skill: LGL-01
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A1
+- skill: LGL-02
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A1
+- skill: LGL-03
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A0
+- skill: LGL-04
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A1
+- skill: LGL-05
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A1
+- skill: LGL-06
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A2
+- skill: LGL-07
+  categories:
+  - case management
+  - clm
+  - grc
+  - policy repository
+  autonomy_requested: A1
+- skill: OFC-01
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A2
+- skill: OFC-02
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A1
+- skill: OFC-03
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A2
+- skill: OFC-04
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A3
+- skill: OFC-05
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A1
+- skill: OFC-06
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A2
+- skill: OFC-07
+  categories:
+  - bookings
+  - facilities platform
+  - inventory
+  - work orders
+  autonomy_requested: A0
+- skill: PMO-01
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A1
+- skill: PMO-02
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A1
+- skill: PMO-03
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A0
+- skill: PMO-04
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A1
+- skill: PMO-05
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A0
+- skill: PMO-06
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A1
+- skill: PMO-07
+  categories:
+  - issue tracker
+  - ppm
+  - reporting
+  - workflow platform
+  autonomy_requested: A0
+- skill: REV-01
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A1
+- skill: REV-02
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A0
+- skill: REV-03
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A1
+- skill: REV-04
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A0
+- skill: REV-05
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A2
+- skill: REV-06
+  categories:
+  - billing
+  - cpq
+  - crm
+  - customer data
+  autonomy_requested: A1
+- skill: SCM-01
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A1
+- skill: SCM-02
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A1
+- skill: SCM-03
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A1
+- skill: SCM-04
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A0
+- skill: SCM-05
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A1
+- skill: SCM-06
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A0
+- skill: SCM-07
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A2
+- skill: SCM-08
+  categories:
+  - erp
+  - procurement suite
+  - supplier portal
+  - wms/tms
+  autonomy_requested: A1

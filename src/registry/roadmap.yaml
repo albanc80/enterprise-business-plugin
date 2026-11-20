@@ -1,0 +1,42 @@
+# GENERATED FILE — do not edit by hand.
+# Source: src/registry/source.json
+# Regenerate: uv run --script tools/build.py
+schema: enterprise-business-plugin/registry/roadmap/v1
+waves:
+- wave: 0
+  name: Control plane
+  duration: Days 0–30
+  intent: Establish secure reusable primitives and measured baselines.
+  deliver:
+  - Business process/value inventory; selected pilot owners
+  - Identity + policy, retrieval, tracing, evaluation, approval and kill switch
+  - Data access contracts; threat model; baseline and golden sets
+  gate: Independent security review, negative tests pass; no production write scope.
+- wave: 1
+  name: Prove value
+  duration: Days 31–90
+  intent: Pilot low-blast-radius, high-frequency workflows with verified human review.
+  deliver:
+  - HR policy Q&A and IT troubleshooting assistant
+  - Support reply drafting and finance invoice exception intake
+  - Procurement requisition checks; HSE near-miss intake
+  - Compare cycle time, quality, adoption and cost against baseline
+  gate: Business owners sign quality, adoption and zero unauthorized action evidence.
+- wave: 2
+  name: Connected execution
+  duration: Days 91–180
+  intent: Add approval-bound integrations and measurable workflow handoffs.
+  deliver:
+  - Onboarding coordination; incident and AP close workflows
+  - Supply exception routing; office service management
+  - Cross-functional typed handoffs, rollback, exception queues
+  gate: SLOs, audit replay, approvals and fallback prove stable before expanded scope.
+- wave: 3
+  name: Scale by risk
+  duration: Days 181+
+  intent: Scale proven skills and narrowly automate reversible low-risk activities.
+  deliver:
+  - Bounded A3 automation with quotas and change control
+  - Portfolio/benefit optimization by outcome evidence
+  - Jurisdictional, departmental and multilingual variants
+  gate: Each expansion requires fresh threat model, independent evaluation and owner approval.

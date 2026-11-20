@@ -1,0 +1,38 @@
+Enterprise Skills Plugin
+Copyright 2026 Alberto Ancona
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-------------------------------------------------------------------------------
+
+What this package contains
+
+  * 93 capability contracts under src/registry/, derived from the author's solution
+  requirements document. That document is NOT published with this package; what ships
+  is its normalized projection at src/registry/source.json, which carries the
+  document's SHA-256 so a holder of the original can confirm the projection matches.
+  * 16 skills under skills/, and the governance policies under src/policies/.
+  * A deterministic governance server under servers/enterprise_core/.
+
+The capability contracts and requirement statements are the author's own design
+work, written to be vendor-neutral and industry-neutral. No employer-confidential
+material, customer data, proprietary threshold or internal system reference is
+included.
+
+Standards and frameworks referenced by name in the source document (NIST AI RMF,
+NIST AI 600-1, ISO/IEC 42001, OWASP GenAI Security Project) are cited for
+alignment only. This package is not certified against them and makes no
+conformance claim.
+
+Third-party Python dependencies (mcp, pyyaml) are resolved at runtime by uv and
+are licensed by their respective authors; none are vendored here.
