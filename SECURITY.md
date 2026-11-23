@@ -19,17 +19,23 @@ writes under its own data directory, and the judgement a human applies to that t
 
 ## What it does write
 
-`audit.jsonl`, in `PLUGIN_DATA` when the client supplies it, otherwise in `.data/` inside the
-package. It is a hash-chained JSONL append log. Nothing else is written.
+`audit.jsonl`, a hash-chained JSONL append log, and nothing else.
+
+It is written to a **persistent data directory, never inside the install folder** — the install
+folder is a cache the client replaces on every update, so an audit trail there disappears exactly
+when someone needs to review it. Resolution order: `ENTERPRISE_DATA_DIR`, then the client's
+`PLUGIN_DATA` / `CLAUDE_PLUGIN_DATA`, then a per-user location
+(`%LOCALAPPDATA%\enterprise-business-plugin`, or `$XDG_DATA_HOME/...`). A variable the client failed
+to expand is ignored rather than used literally.
 
 ## Known limitations
 
 These are deliberate and visible rather than implied to be solved:
 
-1. **The redeemed-approval ledger is in-process.** It resets when the server restarts, so
-   single-use enforcement does not survive a restart. A real deployment backs it with the same
-   durable store as the audit trail. Stated in `list_capabilities` so a caller cannot assume
-   durability.
+1. **The issued-token ledger is in-process.** Only ids this server issued can be redeemed, so a
+   forged id fails closed; but a restart empties the ledger and therefore voids outstanding
+   approvals. That is the intended direction — it fails toward "ask a human again", never toward
+   "honour a stale authorisation". A durable ledger belongs in the same store as the audit trail.
 2. **The audit chain detects tampering, it does not prevent it.** A writer with filesystem access
    can rewrite the whole chain. Anchoring requires an external append-only sink.
 3. **The server is a reference implementation of the governance model**, not a hardened service.
@@ -38,8 +44,30 @@ These are deliberate and visible rather than implied to be solved:
    separation of duties, expiry, binding and evidence completeness. Confirming that a named
    approver actually held the delegated authority is the identity system's job.
 
+## Review findings, fixed in 0.1.1
+
+An external review of 0.1.0 found a defect in the approval gate. It is recorded here because a
+governance package whose failure is invisible has no business claiming to govern anything.
+
+| Severity | Finding | Fix |
+|---|---|---|
+| P0 | `approval_id` was accepted as an opaque string: any invented id redeemed successfully, because the server kept only a list of *already-spent* ids and no record of what it *issued*. | The server now keeps an issued-token ledger. An unknown id returns `unissued_approval`; tokens are scoped to the ledger that issued them. |
+| P0 | A valid token redeemed for a *different* action: the digest was computed at issue time and then discarded, so the binding was decorative. | The digest now covers skill, operation, action and evidence; redemption recomputes it and refuses any change as `action_changed`. |
+| P1 | A token could be issued to release a payment on `FIN-02`, a drafting-only skill — the gate never consulted the autonomy ceiling. | Issuance resolves effective autonomy first and refuses when the mode is `advisory_only` / `draft_only`. No approval exists for a capability the ceiling forbids, and no amount of evidence creates one. |
+| P1 | Separation of duties compared raw strings, so `Alice` / `alice ` / `ALICE` passed as different people. | Identities compare on a normalised form (casefold, whitespace collapsed); a missing identity now fails instead of passing. |
+| P2 | The audit trail was written inside the install folder and was destroyed by the next update. | Persistent data directory, documented above. |
+| P3 | Claude reported unknown fields in the marketplace manifest. | Removed; `claude plugin validate` now passes with no warnings. |
+
+Each fix carries a regression test in `tests/test_approval_gate.py` that reproduces the original
+attack. The tests were written to fail against 0.1.0.
+
 ## Design decisions that matter for review
 
+- **An approval is not a string.** A token is an id this server issued, bound to a digest of one
+  action, one operation and one evidence bundle, expiring on a clock. Everything else — an id from
+  somewhere else, a spent token, a changed payload, a widened operation — is refused by name.
+- **The ceiling outranks the approver.** A valid, complete, well-separated approval still cannot
+  authorise an action the skill's effective autonomy forbids. Permission is not paperwork.
 - **Deny over degrade.** Every failure path denies. Missing evidence, an unknown skill id, a
   malformed level or an expired window all produce a refusal, never a default-allow.
 - **Downgrades are reported.** A permission capped by the package ceiling or the risk tier says

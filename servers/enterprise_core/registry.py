@@ -29,11 +29,40 @@ def plugin_root() -> Path:
     return Path(env) if env else Path(__file__).resolve().parents[2]
 
 
+def _usable_env(name: str) -> str | None:
+    """An env var's value, ignoring one the client failed to expand.
+
+    A `${VAR}` that never resolved arrives literally; writing to a directory named
+    "${CLAUDE_PLUGIN_DATA}" would silently succeed and lose the audit trail.
+    """
+    value = os.environ.get(name)
+    if not value or "$" in value:
+        return None
+    return value
+
+
 def data_dir() -> Path:
-    """PLUGIN_DATA when supplied, else a package-local .data directory."""
-    root = Path(os.environ.get("PLUGIN_DATA") or (plugin_root() / ".data"))
-    root.mkdir(parents=True, exist_ok=True)
-    return root
+    """Persistent data directory — deliberately NOT inside the install folder.
+
+    The install folder is a cache the client replaces on every update, so an audit
+    trail written there disappears exactly when someone needs to review it. Order:
+    the pack's own override, then the client-supplied plugin data directories, then a
+    per-user location that survives every update and uninstall.
+    """
+    for name in ("ENTERPRISE_DATA_DIR", "PLUGIN_DATA", "CLAUDE_PLUGIN_DATA"):
+        value = _usable_env(name)
+        if value:
+            path = Path(value)
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+    if os.name == "nt":
+        base = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local")
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share")
+    path = base / "enterprise-business-plugin"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def _read(relative: str) -> dict[str, Any]:

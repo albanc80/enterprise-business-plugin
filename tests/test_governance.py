@@ -144,31 +144,19 @@ def good_evidence():
     }
 
 
-def test_approval_happy_path_issues_a_single_use_token():
+def test_approval_is_refused_for_a_draft_only_skill():
+    """The shipped ceiling is A1, so no token exists for any skill.
+
+    The token lifecycle (issue -> redeem -> replay, changed action, expiry) is covered in
+    tests/test_approval_gate.py, which simulates a deployment that has opted into A2.
+    """
     result = governance.evaluate_approval(
         "IT-01", "create ticket in ITSM", "requester-1", "approver-1", good_evidence(),
         approver_role="service-desk-lead",
     )
-    assert result["allowed"] is True
-    assert result["approval_id"].startswith("apr_")
-
-
-def test_approval_cannot_be_redeemed_twice():
-    redeemed: set[str] = set()
-    token = governance.evaluate_approval(
-        "IT-01", "create ticket", "r", "a", good_evidence(), approver_role="lead"
-    )["approval_id"]
-    first = governance.evaluate_approval(
-        "IT-01", "create ticket", "r", "a", good_evidence(),
-        approver_role="lead", approval_id=token, redeemed=redeemed,
-    )
-    second = governance.evaluate_approval(
-        "IT-01", "create ticket", "r", "a", good_evidence(),
-        approver_role="lead", approval_id=token, redeemed=redeemed,
-    )
-    assert first["allowed"] is True
-    assert second["allowed"] is False
-    assert "single-use" in second["error"]
+    assert result["allowed"] is False
+    assert "autonomy_ceiling" in result["failed_rules"]
+    assert "approval_id" not in result
 
 
 def test_approval_rejects_self_approval():

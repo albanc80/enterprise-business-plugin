@@ -184,6 +184,59 @@ def main() -> int:
         if not denied:
             failures.append("a write at A1 was not denied by the tool allowlist")
 
+    # The two attacks an external review used against 0.1.0. Kept in the probe because
+    # they were found through the MCP surface, not through the unit tests.
+    send({"jsonrpc": "2.0", "id": 7, "method": "tools/call",
+          "params": {"name": "approval_gate", "arguments": {
+              "skill_id": "FIN-02",
+              "proposed_action": "release payment against invoice INV-4471",
+              "requester_id": "requester-1",
+              "approver_id": "approver-1",
+              "evidence": {},
+              "approval_id": "apr_0000000000000000"}}})
+    forged_msg = reply(7)
+    if not forged_msg:
+        failures.append("no approval_gate response for a forged token")
+    else:
+        forged = payload_of(forged_msg)
+        refused = forged.get("allowed") is False and forged.get("rule") == "unissued_approval"
+        print(f"  [{'OK' if refused else 'FAIL'}] approval_gate forged token -> "
+              f"{forged.get('rule', 'ALLOWED')}")
+        if not refused:
+            failures.append("an approval id the server never issued was not refused")
+
+    evidence_bundle = {
+        "proposed_action": "release payment against invoice INV-4471",
+        "skill_id_and_version": "FIN-02@1.0.0",
+        "cited_evidence": ["GRN-9921"],
+        "risk_tier": "Critical",
+        "reversibility": "irreversible once settled",
+        "rollback_path": "reverse the payment instruction with the bank",
+    }
+    send({"jsonrpc": "2.0", "id": 8, "method": "tools/call",
+          "params": {"name": "approval_gate", "arguments": {
+              "skill_id": "FIN-02",
+              "proposed_action": evidence_bundle["proposed_action"],
+              "requester_id": "requester-1",
+              "approver_id": "approver-1",
+              "evidence": evidence_bundle,
+              "approver_role": "finance-controller",
+              "operation": "write"}}})
+    ceiling_msg = reply(8)
+    if not ceiling_msg:
+        failures.append("no approval_gate response for a draft-only skill")
+    else:
+        ceiling = payload_of(ceiling_msg)
+        refused = (
+            ceiling.get("allowed") is False
+            and "autonomy_ceiling" in (ceiling.get("failed_rules") or [])
+            and "approval_id" not in ceiling
+        )
+        print(f"  [{'OK' if refused else 'FAIL'}] approval_gate payment on FIN-02 -> "
+              f"{'refused at the ceiling' if refused else 'TOKEN ISSUED'}")
+        if not refused:
+            failures.append("a drafting-only skill was issued a token for a protected action")
+
     proc.stdin.close()
     try:
         proc.wait(timeout=10)

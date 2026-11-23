@@ -3,19 +3,12 @@
   "owner": {
     "name": "Alberto Ancona"
   },
-  "interface": {
-    "displayName": "Enterprise Business Plugin"
-  },
   "description": "A governed AI skills layer for business operations: 93 skill contracts across 12 business functions, 16 skills and a deterministic governance MCP. Draft by default, never actuates.",
   "plugins": [
     {
       "name": "enterprise-business-plugin",
       "source": "./",
-      "category": "productivity",
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      }
+      "category": "productivity"
     }
   ]
 }

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 import uuid
 from typing import Any
 
@@ -19,6 +20,11 @@ from . import registry
 
 def digest(payload: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _norm_identity(value: str) -> str:
+    """Identities compare on their normalised form, never raw strings."""
+    return " ".join(str(value or "").split()).casefold()
 
 
 def evaluate_approval(
@@ -30,88 +36,254 @@ def evaluate_approval(
     approver_role: str = "",
     approval_age_minutes: float = 0.0,
     approval_id: str | None = None,
-    redeemed: set[str] | None = None,
+    operation: str = "",
+    issued: dict[str, dict[str, Any]] | None = None,
+    now: float | None = None,
 ) -> dict[str, Any]:
-    """Validate an approval, or redeem a previously issued one exactly once."""
+    """Validate a proposed approval, or redeem one this server actually issued.
+
+    Two modes, and the difference matters:
+
+    * **issue** (no `approval_id`) — runs the policy checks, then, only if the skill's
+      *effective* autonomy permits a protected action at all, issues a single-use token
+      bound to the digest of this exact action.
+    * **redeem** (`approval_id`) — refuses any id it never issued, any token already
+      spent, any token whose bound action/evidence/operation has changed, and any token
+      past its expiry. A token is not a session, a role, or "someone said fine earlier".
+
+    `issued` is the ledger of live tokens; pass the server's single instance so a restart
+    voids outstanding approvals rather than silently honouring them.
+    """
     reg = registry.skills()
     if skill_id not in reg:
-        return {"allowed": False, "error": f"unknown skill_id {skill_id!r}"}
+        return {
+            "allowed": False,
+            "rule": "unknown_skill",
+            "error": f"unknown skill_id {skill_id!r}; call list_skills for the canonical ids",
+        }
 
     contract = reg[skill_id]
     rules = registry.approval_rules()["rules"]
     window = float(rules["expiry"]["default_window_minutes"])
     required = list(rules["evidence_bundle"]["required_fields"])
-    redeemed = redeemed if redeemed is not None else set()
+    ledger = issued if issued is not None else {}
+    clock = time.time() if now is None else now
 
-    # Redeem mode: the token, not the proposal, is what is checked.
+    # ------------------------------------------------------------------ redeem
     if approval_id:
-        if approval_id in redeemed:
+        token = ledger.get(approval_id)
+        if token is None:
             return {
                 "allowed": False,
+                "rule": "unissued_approval",
+                "approval_id": approval_id,
+                "error": (
+                    "this approval_id was never issued by this server. An approval that "
+                    "cannot be traced to a validation is not an approval."
+                ),
+            }
+        if token.get("redeemed_at"):
+            return {
+                "allowed": False,
+                "rule": "already_redeemed",
                 "approval_id": approval_id,
                 "error": "approval already redeemed — approvals are single-use",
             }
-        redeemed.add(approval_id)
+        if token["skill_id"] != skill_id:
+            return {
+                "allowed": False,
+                "rule": "scope_mismatch",
+                "approval_id": approval_id,
+                "error": (
+                    f"token was issued for {token['skill_id']!r} and cannot authorise "
+                    f"{skill_id!r}"
+                ),
+            }
+
+        effective_op = operation or token["operation"]
+        presented = digest(
+            {
+                "skill_id": skill_id,
+                "operation": effective_op,
+                "proposed_action": proposed_action,
+                "evidence": evidence,
+            }
+        )
+        if effective_op != token["operation"]:
+            return {
+                "allowed": False,
+                "rule": "scope_mismatch",
+                "approval_id": approval_id,
+                "error": (
+                    f"token authorises the {token['operation']!r} operation, not "
+                    f"{effective_op!r}"
+                ),
+            }
+        if presented != token["action_digest"]:
+            return {
+                "allowed": False,
+                "rule": "action_changed",
+                "approval_id": approval_id,
+                "bound_digest": token["action_digest"],
+                "presented_digest": presented,
+                "error": (
+                    "the action, its evidence or its operation differs from what was "
+                    "approved. A changed action needs a new approval."
+                ),
+            }
+        if clock > token["expires_at"]:
+            return {
+                "allowed": False,
+                "rule": "expired",
+                "approval_id": approval_id,
+                "expired_at": token["expires_at"],
+                "error": "approval window elapsed; request a fresh approval",
+            }
+
+        token["redeemed_at"] = clock
         return {
             "allowed": True,
             "approval_id": approval_id,
+            "skill_id": skill_id,
+            "operation": token["operation"],
             "redeemed": True,
-            "note": "One action authorised. Any change to the action requires a new approval.",
+            "action_digest": token["action_digest"],
+            "note": "One action authorised and now consumed. Any change requires a new approval.",
         }
 
+    # ------------------------------------------------------------------- issue
+    checks: list[dict[str, Any]] = []
+
+    def check(rule: str, ok: bool, detail: str) -> None:
+        checks.append({"rule": rule, "status": "pass" if ok else "fail", "detail": detail})
+
+    # A ceiling above the caller: refuse before the policy checks, because no set of
+    # approvals can authorise an action the skill may not take.
+    resolution = registry.resolve_autonomy(skill_id)
+    mode = resolution["mode"]
+    ceiling_ok = mode in {"human_confirm", "auto"}
+    check(
+        "autonomy_ceiling",
+        ceiling_ok,
+        (
+            f"effective {resolution['autonomy_effective']} ({mode}) permits a protected action"
+            if ceiling_ok
+            else (
+                f"effective {resolution['autonomy_effective']} ({mode}) does not permit a "
+                "protected action — this skill drafts or advises, so no approval can "
+                "authorise a write for it"
+            )
+        ),
+    )
+
+    try:
+        operations = registry.tool_allowlist(skill_id)["allowed_operations"]
+    except KeyError:
+        operations = ["read"]  # unknown allowlist entry denies writes, never allows them
+    requested_op = operation or ("write" if "write" in operations else operations[-1])
+    check(
+        "operation_permitted",
+        requested_op in operations,
+        (
+            f"{requested_op!r} is within {resolution['autonomy_effective']}"
+            if requested_op in operations
+            else f"{requested_op!r} not permitted at {resolution['autonomy_effective']} (allowed: {operations})"
+        ),
+    )
+
     missing = [field for field in required if not evidence.get(field)]
-    checks = [
-        {
-            "rule": "action_specific",
-            "status": "pass" if proposed_action.strip() else "fail",
-            "detail": "approval binds to the exact proposed action digest",
-        },
-        {
-            "rule": "separation_of_duties",
-            "status": "pass" if approver_id and approver_id != requester_id else "fail",
-            "detail": "approver must differ from the requester",
-        },
-        {
-            "rule": "expiry",
-            "status": "pass" if approval_age_minutes <= window else "fail",
-            "detail": f"window is {int(window)} minutes, presented age {approval_age_minutes}",
-        },
-        {
-            "rule": "evidence_bundle",
-            "status": "pass" if not missing else "fail",
-            "detail": "complete" if not missing else f"missing: {', '.join(missing)}",
-        },
-        {
-            "rule": "authorised_approver",
-            "status": "pass" if approver_role.strip() else "fail",
-            "detail": "approver role must be stated so delegation is auditable",
-        },
-    ]
+    req_norm, appr_norm = _norm_identity(requester_id), _norm_identity(approver_id)
+    check(
+        "action_specific",
+        bool(proposed_action.strip()),
+        "approval binds to the exact proposed action digest",
+    )
+    check(
+        "separation_of_duties",
+        bool(req_norm) and bool(appr_norm) and appr_norm != req_norm,
+        (
+            f"approver {appr_norm!r} differs from requester {req_norm!r}"
+            if req_norm and appr_norm and appr_norm != req_norm
+            else "approver and requester must both be stated and must differ"
+        ),
+    )
+    check(
+        "expiry",
+        approval_age_minutes <= window,
+        f"window is {int(window)} minutes, presented age {approval_age_minutes}",
+    )
+    check(
+        "evidence_bundle",
+        not missing,
+        "complete" if not missing else f"missing: {', '.join(missing)}",
+    )
+    check(
+        "authorised_approver",
+        bool(approver_role.strip()),
+        "approver role must be stated so delegation is auditable",
+    )
+
     failed = [c for c in checks if c["status"] != "pass"]
     if failed:
+        rules = [c["rule"] for c in failed]
+        if "autonomy_ceiling" in rules:
+            next_action = (
+                "Do not issue a token, and do not retry with different evidence: the "
+                "obstacle is the permission ceiling, not the paperwork. Route the "
+                "proposed action to the owning system and its authorised operator."
+            )
+        else:
+            next_action = (
+                "Deny and route back to the requester with the failed rule named: "
+                + ", ".join(rules)
+            )
         return {
             "allowed": False,
             "skill_id": skill_id,
             "risk": contract["risk"],
+            "operation": requested_op,
             "checks": checks,
-            "next_action": (
-                "Deny and route back to the requester with the failed rule named: "
-                + ", ".join(c["rule"] for c in failed)
-            ),
+            "failed_rules": rules,
+            "next_action": next_action,
         }
+
+    new_id = f"apr_{uuid.uuid4().hex[:16]}"
+    action_digest = digest(
+        {
+            "skill_id": skill_id,
+            "operation": requested_op,
+            "proposed_action": proposed_action,
+            "evidence": evidence,
+        }
+    )
+    expires_at = clock + window * 60
+    ledger[new_id] = {
+        "skill_id": skill_id,
+        "operation": requested_op,
+        "action_digest": action_digest,
+        "requester": req_norm,
+        "approver": appr_norm,
+        "approver_role": approver_role.strip(),
+        "risk": contract["risk"],
+        "issued_at": clock,
+        "expires_at": expires_at,
+        "redeemed_at": None,
+    }
 
     return {
         "allowed": True,
         "skill_id": skill_id,
         "risk": contract["risk"],
+        "operation": requested_op,
         "checks": checks,
-        "approval_id": f"apr_{uuid.uuid4().hex[:16]}",
-        "action_digest": digest(
-            {"skill_id": skill_id, "proposed_action": proposed_action, "evidence": evidence}
-        ),
+        "approval_id": new_id,
+        "action_digest": action_digest,
+        "issued_at": clock,
+        "expires_at": expires_at,
         "valid_for_minutes": int(window),
         "next_action": (
-            "Execute exactly this action once, then audit_append the receipt with the approval id."
+            "Execute exactly this action once, then audit_append the receipt with the "
+            "approval id. Any change to the action voids this token."
         ),
     }
 

@@ -82,34 +82,78 @@ def main() -> int:
             print(f"         {check_row['rule']}: {check_row['detail']}")
     print(f"         next: {denied['next_action']}\n")
 
-    print("3. APPROVAL — complete evidence issues a one-shot token")
-    redeemed: set[str] = set()
-    granted = governance.evaluate_approval(
+    print("3. APPROVAL — the shipped ceiling refuses to issue a token")
+    issued: dict = {}
+    at_ceiling = governance.evaluate_approval(
         skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
-        scenario["evidence"], approver_role=scenario["approver_role"], redeemed=redeemed,
+        scenario["evidence"], approver_role=scenario["approver_role"], issued=issued,
     )
-    check("approval with evidence", "granted" if granted["allowed"] else "denied",
-          exp["approval_with_evidence"])
-    token = granted.get("approval_id")
-    print(f"         token: {token}")
-    print(f"         bound to action digest: {str(granted.get('action_digest'))[:16]}…")
-    print(f"         next: {granted['next_action']}\n")
+    check("approval at the shipped ceiling",
+          "granted" if at_ceiling["allowed"] else "denied",
+          exp["approval_at_shipped_ceiling"])
+    for check_row in at_ceiling["checks"]:
+        if check_row["status"] != "pass":
+            print(f"         {check_row['rule']}: {check_row['detail']}")
+    print(f"         next: {at_ceiling['next_action']}\n")
+    assert not at_ceiling["allowed"], "a draft-only skill must never receive a token"
+    assert issued == {}, "no token may exist for a skill the ceiling forbids"
 
-    print("4. REDEMPTION — an approval authorises one action, once")
-    first = governance.evaluate_approval(
-        skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
-        scenario["evidence"], approver_role=scenario["approver_role"],
-        approval_id=token, redeemed=redeemed,
-    )
-    second = governance.evaluate_approval(
-        skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
-        scenario["evidence"], approver_role=scenario["approver_role"],
-        approval_id=token, redeemed=redeemed,
-    )
-    check("first redemption", "granted" if first["allowed"] else "denied", "granted")
-    check("second redemption", "denied" if not second["allowed"] else "granted",
-          exp["second_redemption"])
-    print(f"         {second.get('error', '')}\n")
+    print("4. APPROVAL — under an A2 deployment a token binds to exactly one action")
+    # Simulate the opt-in a real deployment would perform: named owner, approval gate
+    # configured, audit on, rollback path defined. The shipped package does not do this.
+    real_resolve = registry.resolve_autonomy
+
+    def _opted_in(sid, *args, **kwargs):
+        resolved = dict(real_resolve(sid, *args, **kwargs))
+        resolved["mode"] = "human_confirm"
+        resolved["autonomy_effective"] = "A2"
+        return resolved
+
+    registry.resolve_autonomy = _opted_in
+    try:
+        granted = governance.evaluate_approval(
+            skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
+            scenario["evidence"], approver_role=scenario["approver_role"], issued=issued,
+        )
+        check("approval with complete evidence",
+              "granted" if granted["allowed"] else "denied", exp["approval_with_evidence"])
+        token = granted.get("approval_id")
+        print(f"         token: {token}")
+        print(f"         bound to: {str(granted.get('action_digest'))[:16]}… "
+              f"operation {granted.get('operation')}")
+        print(f"         expires in {granted.get('valid_for_minutes')} minutes\n")
+
+        forged = governance.evaluate_approval(
+            skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
+            scenario["evidence"], approver_role=scenario["approver_role"],
+            approval_id="apr_0000000000000000", issued=issued,
+        )
+        check("a token nobody issued", "denied" if not forged["allowed"] else "granted", "denied")
+        print(f"         {forged.get('error', '')}\n")
+
+        changed = governance.evaluate_approval(
+            skill_id, "release payment to a different supplier for a different amount",
+            scenario["requester"], scenario["approver"], scenario["evidence"],
+            approver_role=scenario["approver_role"], approval_id=token, issued=issued,
+        )
+        check("a token used for another action",
+              "denied" if not changed["allowed"] else "granted", "denied")
+        print(f"         {changed.get('error', '')}\n")
+
+        common = dict(
+            skill_id=skill_id, proposed_action=scenario["proposed_action"],
+            requester_id=scenario["requester"], approver_id=scenario["approver"],
+            evidence=scenario["evidence"], approver_role=scenario["approver_role"],
+            approval_id=token, issued=issued,
+        )
+        first = governance.evaluate_approval(**common)
+        replay = governance.evaluate_approval(**common)
+        check("first redemption", "granted" if first["allowed"] else "denied", "granted")
+        check("second redemption", "denied" if not replay["allowed"] else "granted",
+              exp["second_redemption"])
+        print(f"         {replay.get('error', '')}\n")
+    finally:
+        registry.resolve_autonomy = real_resolve
 
     print("5. RELEASE — evidence gaps block deployment, pilot included")
     release = governance.evaluate_release(skill_id, scenario["release_evidence"])

@@ -52,10 +52,11 @@ EXPECTED = {
     "release_gates": 3,
 }
 
-# In-process ledger of approvals already redeemed. A real deployment backs this with
-# the same store as the audit trail; here it is intentionally visible as a limitation
-# rather than implied to be durable.
-_REDEEMED: set[str] = set()
+# In-process ledger of tokens this server issued and has not yet seen redeemed.
+# Only ids in here can be redeemed, so a forged id fails closed. A restart empties it,
+# which voids outstanding approvals rather than silently honouring them; that is the
+# intended failure direction, and it is documented as a limitation in SECURITY.md.
+_ISSUED: dict[str, dict[str, Any]] = {}
 
 
 # --------------------------------------------------------------------- helpers
@@ -137,7 +138,7 @@ def list_capabilities() -> dict[str, Any]:
             "make an approval valid; it validates one an authorised human granted",
         ],
         "limitations": [
-            "the redeemed-approval ledger is in-process and resets when the server restarts",
+            "the issued-token ledger is in-process: a restart voids outstanding approvals rather than honouring them",
             "skill contracts are proposed and unvalidated, exactly as the SRD states",
         ],
     }
@@ -246,6 +247,7 @@ def approval_gate(
     approver_role: str = "",
     approval_age_minutes: float = 0.0,
     approval_id: str | None = None,
+    operation: str = "",
 ) -> dict[str, Any]:
     """Validate an approval against the package's approval rules, or redeem one.
 
@@ -256,6 +258,11 @@ def approval_gate(
     Rules enforced (src/policies/approval.yaml): action-specific binding, expiry,
     single use, separation of duties, and a complete evidence bundle. Missing or
     malformed evidence denies; it never degrades to allow.
+
+    Redemption is checked against the tokens this server issued: an id it never issued,
+    a spent token, a changed action, evidence or operation, or an expired token all
+    deny. A token cannot authorise an action the skill's effective autonomy forbids —
+    issuance is refused for drafting-only skills, so no approval exists for them.
     """
     return governance.evaluate_approval(
         skill_id=skill_id,
@@ -266,7 +273,8 @@ def approval_gate(
         approver_role=approver_role,
         approval_age_minutes=approval_age_minutes,
         approval_id=approval_id,
-        redeemed=_REDEEMED,
+        operation=operation,
+        issued=_ISSUED,
     )
 
 @mcp.tool()
