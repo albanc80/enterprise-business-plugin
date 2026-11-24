@@ -349,22 +349,33 @@ def _tool_categories(tool: dict[str, Any], manifest_categories: set[str]) -> set
     return manifest_categories
 
 
+def _norm_token(value: Any) -> str:
+    """Operation and status tokens compare on case and padding, never on content."""
+    return str(value or "").strip().lower()
+
+
 def evaluate_tool_call(
     skill_id: str,
     tool_name: str,
     operation: str,
     category: str,
-    connector_status: str = "ready",
+    connector_status: str = "",
 ) -> dict[str, Any]:
-    """Decide whether one skill may call one specific tool.
+    """Decide whether one skill may call one tool. Deny-by-default.
 
     This is the enforcement primitive a gateway calls before dispatch. It answers a
     different question from route_autonomy: that one says whether the capability may
-    write at all, this one says whether it may reach *this* tool. Both have to allow.
+    write at all, this one says whether it may reach this tool. Both have to allow.
 
-    Deliberately simple and deny-by-default: an unknown skill, an undeclared
-    category, an operation above the skill's level or a non-conformant connector all
-    produce a refusal with the rule that fired.
+    The verdict is **category-scoped**, not tool-name-scoped: the allowlist says a skill
+    may reach ITSM tools at `read`, and this function has no tool directory to check a
+    concrete name against. `tool_name` is echoed and marked `tool_name_verified: false`
+    so an allow is never mistaken for "this specific tool is permitted" — resolving a
+    name needs a connector manifest and `check_connector`.
+
+    `connector_status` must be the verdict from `check_connector`. There is deliberately
+    no default: silence is not evidence the connector was checked, and defaulting to
+    "ready" made the gate fail open on the one argument that proves it was.
     """
     policy = registry.tool_allowlist_policy()
 
@@ -381,15 +392,34 @@ def evaluate_tool_call(
         "effective_autonomy": allow["effective_autonomy"],
     }
 
-    if connector_status != "ready":
+    if not str(tool_name or "").strip():
+        return {**base, "allowed": False, "rule": "missing_tool", "reason": "no tool name supplied"}
+
+    connector = _norm_token(connector_status)
+    if not connector:
+        return {
+            **base,
+            "allowed": False,
+            "rule": "connector_unverified",
+            "reason": (
+                "connector_status was not supplied. A gateway that has not checked the "
+                "connector is not authorised to dispatch: call check_connector and pass "
+                "its decision here."
+            ),
+        }
+    if connector != "ready":
         return {
             **base,
             "allowed": False,
             "rule": "connector_not_conformant",
-            "reason": f"connector decision is {connector_status!r}; run check_connector and fix it first",
+            "reason": (
+                f"connector decision is {connector_status!r}; run check_connector and fix "
+                "it first"
+            ),
         }
 
-    if operation not in allow["allowed_operations"]:
+    allowed_operations = [_norm_token(op) for op in allow["allowed_operations"]]
+    if _norm_token(operation) not in allowed_operations:
         return {
             **base,
             "allowed": False,
@@ -400,7 +430,8 @@ def evaluate_tool_call(
             ),
         }
 
-    if str(category).strip().lower() not in allow["allowed_categories"]:
+    declared_categories = [_norm_token(c) for c in allow["allowed_categories"]]
+    if _norm_token(category) not in declared_categories:
         return {
             **base,
             "allowed": False,
@@ -411,16 +442,20 @@ def evaluate_tool_call(
             ),
         }
 
-    if not str(tool_name).strip():
-        return {**base, "allowed": False, "rule": "missing_tool", "reason": "no tool name supplied"}
-
     return {
         **base,
         "allowed": True,
         "rule": "allowlist",
         "reason": (
-            f"{operation!r} on category {category!r} is within {allow['effective_autonomy']} "
-            f"and declared by the contract"
+            f"{_norm_token(operation)!r} on category {_norm_token(category)!r} is within "
+            f"{allow['effective_autonomy']} and declared by the contract"
+        ),
+        "scope": "category",
+        "tool_name_verified": False,
+        "note": (
+            "This verdict covers the category and operation, not the concrete tool name. "
+            "Resolve the name against a connector manifest with check_connector before "
+            "treating a specific tool as permitted."
         ),
         "default_decision": policy["default_decision"],
         "enforcement": allow["enforcement"],

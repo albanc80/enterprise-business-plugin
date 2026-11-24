@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.1.4-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
+[![version](https://img.shields.io/badge/version-0.1.5-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
 
 A portable **[Agent Plugins v1](https://agent-plugins.org)** package carrying a governed AI
 skills layer for business operations: **93 skill contracts across 12 business functions,
@@ -88,7 +88,7 @@ the skills cite, so a skill's explanation and the tool's verdict cannot drift ap
 | `get_contract` / `list_skills` | The contract itself — owner, metric, acceptance, escalation, fail-safe |
 | `check_connector` | Whether a connector you supply can carry the guarantees: structure, then per-skill operation fit |
 | `tool_allowlist` | Which system categories and operations a skill may use at its effective autonomy |
-| `check_tool_call` | Deny-by-default verdict for one skill calling one tool — the gateway's enforcement primitive |
+| `check_tool_call` | Deny-by-default verdict for one skill calling one tool — category-scoped, refuses without a connector verdict |
 | `score_skills` | The SRD's opportunity heuristic, reproduced exactly |
 | `audit_append` / `audit_trace` | Hash-chained decision trail |
 | `list_capabilities` | What this server can and cannot do, before you trust an answer |
@@ -217,15 +217,16 @@ policy decision, so tightening it never rewrites a source contract.
 
 ## Status
 
-**Version 0.1.4 — reference implementation, unvalidated in use.**
+**Version 0.1.5 — reference implementation, unvalidated in use.**
 
 > **Every release so far has been a security release.** Two external reviews broke the
 > package: 0.1.0's approval gate accepted ids it never issued and could mint a token for a
 > payment on a drafting-only skill (fixed in 0.1.1); its tools then accepted malformed
 > filters, negative scoring weights and unverified approver roles (fixed in 0.1.2–0.1.3); and its audit trail was chained but
-> never verified (fixed in 0.1.4). Each fix
+> never verified (fixed in 0.1.4); and its
+tool-call gate assumed the connector had been checked (fixed in 0.1.5). Each fix
 > has a regression test written to fail against the version that shipped the defect — see
-> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.4, update. No adopter, no assigned process
+> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.5, update. No adopter, no assigned process
 owner, no measured baseline and no golden set exists yet. The version says so deliberately: the
 contract format and the governance model are settled enough to distribute, and not settled enough
 to promise stability.

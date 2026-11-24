@@ -68,6 +68,30 @@ file on disk; a clean chain passes and every tampering case is caught — except
 which is pinned as a test asserting it is *not* detectable, so the limitation cannot be quietly
 forgotten.
 
+### 0.1.5 — the tool-call gate failed open on its own precondition
+
+`check_tool_call` is the enforcement primitive a gateway calls before dispatch, so it was
+attacked the way a caller attacks it: with valid-looking arguments trying to earn an `allowed`.
+
+**The gate defaulted `connector_status` to `"ready"`.** Deny-by-default everywhere except the
+one argument that represents "the connector was checked" — a gateway that never called
+`check_connector` was told yes. The parameter now has no default: omitting it returns
+`connector_unverified`, and the reason says to call `check_connector` first.
+
+`tool_name` was never compared to anything, yet the response said `allowed: true` for it. The
+rule is genuinely category-scoped — the package has no tool directory to check a name against —
+so the defect was in the reporting, not the rule. The response now carries `scope: "category"`
+and `tool_name_verified: false` plus a note pointing at `check_connector`'s per-tool rows.
+
+Operation and connector tokens are now normalised for case and padding. Not a vulnerability —
+the old code refused `"WRITE"` — but a denial for a legitimate intent invites trying variants
+until one is accepted, which is argument-fishing, not governance. Lookalikes are still refused:
+`wr ite`, zero-width and Cyrillic characters, fullwidth forms, `write;`, `write()`, `writes`.
+A category allow is not a tool approval, and the payload now says so.
+
+36 adversarial cases in `tests/test_tool_call_gate.py`, and the probe asserts the refusal when
+the connector verdict is omitted.
+
 ## Review findings
 
 An external review of 0.1.0 found a defect in the approval gate. It is recorded here because a

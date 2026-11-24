@@ -61,13 +61,17 @@ def test_unknown_skill_raises_rather_than_guessing():
 
 
 def test_read_call_in_a_declared_category_is_allowed():
-    verdict = governance.evaluate_tool_call("IT-01", "itsm.get_incident", "read", "ITSM")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "itsm.get_incident", "read", "ITSM", connector_status="ready"
+    )
     assert verdict["allowed"] is True
     assert verdict["rule"] == "allowlist"
 
 
 def test_write_call_at_a1_is_denied():
-    verdict = governance.evaluate_tool_call("IT-01", "itsm.create_ticket", "write", "ITSM")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "itsm.create_ticket", "write", "ITSM", connector_status="ready"
+    )
     assert verdict["allowed"] is False
     assert verdict["rule"] == "operation_not_permitted"
     assert "A1" in verdict["reason"]
@@ -75,7 +79,9 @@ def test_write_call_at_a1_is_denied():
 
 def test_call_in_an_undeclared_category_is_denied():
     """IT-01's contract covers ITSM/IAM/CMDB — not payroll."""
-    verdict = governance.evaluate_tool_call("IT-01", "hr.get_salary", "read", "HRIS")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "hr.get_salary", "read", "HRIS", connector_status="ready"
+    )
     assert verdict["allowed"] is False
     assert verdict["rule"] == "category_not_declared"
 
@@ -89,13 +95,17 @@ def test_rejected_connector_blocks_every_call():
 
 
 def test_unknown_skill_denies():
-    verdict = governance.evaluate_tool_call("ZZZ-99", "x", "read", "ITSM")
+    verdict = governance.evaluate_tool_call(
+        "ZZZ-99", "x", "read", "ITSM", connector_status="ready"
+    )
     assert verdict["allowed"] is False
     assert verdict["rule"] == "unknown_skill"
 
 
 def test_empty_tool_name_denies():
-    verdict = governance.evaluate_tool_call("IT-01", "  ", "read", "ITSM")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "  ", "read", "ITSM", connector_status="ready"
+    )
     assert verdict["allowed"] is False
     assert verdict["rule"] == "missing_tool"
 
@@ -119,18 +129,23 @@ def a2_opt_in(skill_id: str):
 
 def test_write_becomes_permitted_only_after_a2_opt_in(monkeypatch):
     assert not governance.evaluate_tool_call(
-        "IT-01", "itsm.create_ticket", "write", "ITSM"
+        "IT-01", "itsm.create_ticket", "write", "ITSM",
+        connector_status="ready",
     )["allowed"]
 
     monkeypatch.setattr(registry, "autonomy_config", lambda: a2_opt_in("IT-01"))
-    verdict = governance.evaluate_tool_call("IT-01", "itsm.create_ticket", "write", "ITSM")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "itsm.create_ticket", "write", "ITSM", connector_status="ready"
+    )
     assert verdict["allowed"] is True
     assert verdict["effective_autonomy"] == "A2"
 
 
 def test_a2_still_denies_an_undeclared_category(monkeypatch):
     monkeypatch.setattr(registry, "autonomy_config", lambda: a2_opt_in("IT-01"))
-    verdict = governance.evaluate_tool_call("IT-01", "hr.set_salary", "write", "HRIS")
+    verdict = governance.evaluate_tool_call(
+        "IT-01", "hr.set_salary", "write", "HRIS", connector_status="ready"
+    )
     assert verdict["allowed"] is False
     assert verdict["rule"] == "category_not_declared"
 

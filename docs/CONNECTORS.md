@@ -84,6 +84,17 @@ Both layers must allow before a write is legitimate. They answer different quest
    with the correlation id.
 4. Refuse to dispatch at all while the connector's decision is not `ready`.
 
+Two properties of that call worth knowing before you wire it in:
+
+- **`connector_status` has no default.** Omitting it returns `connector_unverified` and refuses.
+  A gateway that has not checked the connector is not authorised to dispatch, so the argument
+  is required rather than assumed "ready". Pass the decision from `check_connector`.
+- **The verdict is category-scoped, not tool-name-scoped.** The response carries
+  `scope: "category"` and `tool_name_verified: false`. An allow means "this skill may use this
+  operation in this category", not "this specific tool is safe" — resolving a concrete name is
+  what `check_connector`'s per-tool rows are for. Treating a category allow as a tool approval
+  is the mistake this package cannot stop you making, so it labels the limit in the payload.
+
 The honest caveat: if your client has no per-skill tool gating, this degrades into a checklist.
 A checklist is not a control. The allowlist only becomes an actual guarantee when something
 between the model and the connector applies it.

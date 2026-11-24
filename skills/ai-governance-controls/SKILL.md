@@ -82,7 +82,11 @@ two checks apply, in this order:
    privilege, no ambient credentials, bounded retry, idempotency, post-condition and rollback on
    every write) and per-skill fit, including which of the connector's tools each skill may call.
 2. **`check_tool_call`** before any tool is dispatched, using the tool's declared `operation` and
-   `category` from the manifest — never the model's description of the tool.
+   `category` from the manifest — never the model's description of the tool. Pass
+   `connector_status` from `check_connector`: there is no default, and an omitted verdict
+   refuses with `connector_unverified`. The verdict is category-scoped — it returns
+   `scope: "category"` and `tool_name_verified: false` — so an allow never means the specific
+   tool name was checked; that is what `check_connector`'s per-tool rows establish.
 
 Tool scope and autonomy are different questions and both must allow:
 

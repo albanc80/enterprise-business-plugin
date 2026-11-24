@@ -433,7 +433,7 @@ def check_tool_call(
     tool_name: str,
     operation: str,
     category: str,
-    connector_status: str = "ready",
+    connector_status: str = "",
 ) -> dict[str, Any]:
     """Decide whether one skill may call one tool. Deny-by-default.
 
@@ -443,8 +443,15 @@ def check_tool_call(
     tool". Both must allow.
 
     `operation` must be read, propose or write; `category` is the system category the
-    tool belongs to, as declared in the connector manifest. Pass
-    `connector_status` from check_connector — anything other than `ready` refuses.
+    tool belongs to, as declared in the connector manifest.
+
+    `connector_status` must be the verdict you got from check_connector. There is no
+    default on purpose: omitting it returns `connector_unverified` and refuses, because
+    a gateway that has not checked the connector is not authorised to dispatch.
+
+    The verdict is category-scoped. `tool_name` is echoed and marked
+    `tool_name_verified: false` — resolve a concrete name with check_connector before
+    treating that specific tool as permitted.
     """
     return governance.evaluate_tool_call(
         skill_id=skill_id,

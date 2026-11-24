@@ -187,7 +187,8 @@ def main() -> int:
     send({"jsonrpc": "2.0", "id": 6, "method": "tools/call",
           "params": {"name": "check_tool_call", "arguments": {
               "skill_id": "IT-01", "tool_name": "itsm.create_ticket",
-              "operation": "write", "category": "itsm"}}})
+              "operation": "write", "category": "itsm",
+              "connector_status": "ready"}}})
     call_msg = reply(6)
     if not call_msg:
         failures.append("no check_tool_call response")
@@ -251,6 +252,27 @@ def main() -> int:
               f"{'refused at the ceiling' if refused else 'TOKEN ISSUED'}")
         if not refused:
             failures.append("a drafting-only skill was issued a token for a protected action")
+
+    send({"jsonrpc": "2.0", "id": 9, "method": "tools/call",
+          "params": {"name": "check_tool_call", "arguments": {
+              "skill_id": "IT-01", "tool_name": "itsm.get_incident",
+              "operation": "read", "category": "itsm"}}})
+    unverified_msg = reply(9)
+    if not unverified_msg:
+        failures.append("no check_tool_call response when connector_status was omitted")
+    else:
+        unverified = payload_of(unverified_msg)
+        refused = (
+            unverified.get("allowed") is False
+            and unverified.get("rule") == "connector_unverified"
+        )
+        print(f"  [{'OK' if refused else 'FAIL'}] check_tool_call without a connector "
+              f"verdict -> {unverified.get('rule', 'ALLOWED')}")
+        if not refused:
+            failures.append(
+                "omitting connector_status was allowed; the gate fails open on the one "
+                "argument that proves the connector was checked"
+            )
 
     proc.stdin.close()
     try:
