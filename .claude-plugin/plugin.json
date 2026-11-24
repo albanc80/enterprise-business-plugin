@@ -1,7 +1,7 @@
 {
   "name": "enterprise-business-plugin",
   "displayName": "Enterprise Business Plugin",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A governed AI skills layer for business operations: 93 skill contracts across 12 business functions, 16 skills and a deterministic governance MCP. Advisory and draft by default, never actuates.",
   "author": {
     "name": "Alberto Ancona"

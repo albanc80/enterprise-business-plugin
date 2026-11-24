@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.1.6-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
+[![version](https://img.shields.io/badge/version-0.1.7-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
 
 A portable **[Agent Plugins v1](https://agent-plugins.org)** package carrying a governed AI
 skills layer for business operations: **93 skill contracts across 12 business functions,
@@ -215,9 +215,31 @@ requirement — you just cannot re-derive them from the original, which is the c
 The registry keeps each contract's **requested** autonomy. The shipped ceiling is a runtime
 policy decision, so tightening it never rewrites a source contract.
 
+## Evaluation
+
+The gates are tested; correctness was not defined. `evals/` fixes the factual half of it:
+66 generated cases across the 12 domains where a correct answer is the contract's own
+value — the effective autonomy, the owner, the acceptance criterion quoted **verbatim**,
+the operation allowlist, a refusal with its rule, and an unknown id that must not be
+invented.
+
+```bash
+uv run --script tools/eval_cases.py --check         # cases still match the registry
+uv run --script tools/grade_answers.py --goldens    # the grader passes its own answers
+```
+
+Grading is exact after normalising whitespace and case, because a threshold restated in
+different words is the failure this package exists to prevent.
+
+**Status: measurable, partly measured.** A 7-case sample covering every question kind was
+answered by Claude through the plugin's MCP tools: 7 correct, 0 wrong. The full 66-case
+suite is not yet run, so this is evidence the loop works end to end — not evidence that 93
+contracts are accurate. Whether the *advice* is good needs a domain owner to rule on judgement, which no
+part of this package can supply. See [`evals/README.md`](evals/README.md).
+
 ## Status
 
-**Version 0.1.6 — reference implementation, unvalidated in use.**
+**Version 0.1.7 — reference implementation, unvalidated in use.**
 
 > **Every release so far has been a security release.** Two external reviews broke the
 > package: 0.1.0's approval gate accepted ids it never issued and could mint a token for a
@@ -227,7 +249,7 @@ policy decision, so tightening it never rewrites a source contract.
 tool-call gate assumed the connector had been checked (fixed in 0.1.5); and its
 audit writer forked the chain under concurrent appends (fixed in 0.1.6). Each fix
 > has a regression test written to fail against the version that shipped the defect — see
-> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.6, update. No adopter, no assigned process
+> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.7, update. No adopter, no assigned process
 owner, no measured baseline and no golden set exists yet. The version says so deliberately: the
 contract format and the governance model are settled enough to distribute, and not settled enough
 to promise stability.

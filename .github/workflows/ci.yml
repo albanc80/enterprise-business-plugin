@@ -22,6 +22,12 @@ jobs:
       - name: Package validates
         run: uv run --quiet --with "pyyaml>=6,<7" -- python tools/validate.py
 
+      - name: Evaluation cases match the registry
+        run: uv run --quiet --script tools/eval_cases.py --check
+
+      - name: Grader self-check
+        run: uv run --quiet --script tools/grade_answers.py --goldens
+
       - name: Server selftest
         run: uv run --script servers/enterprise_core/main.py --selftest
 

@@ -86,7 +86,7 @@ claude plugin install enterprise-business-plugin@enterprise-business-plugin -y
 
 ```
 ❯ enterprise-business-plugin@enterprise-business-plugin
-  Version: 0.1.6
+  Version: 0.1.7
   Scope: user
   Status: ✔ enabled
 ```
@@ -95,7 +95,7 @@ claude plugin install enterprise-business-plugin@enterprise-business-plugin -y
 
 ```
 plugin:enterprise-business-plugin:enterprise-core: uv run --quiet --script
-  C:/Users/<you>/.claude/plugins/cache/enterprise-business-plugin/enterprise-business-plugin/0.1.6/servers/enterprise_core/main.py
+  C:/Users/<you>/.claude/plugins/cache/enterprise-business-plugin/enterprise-business-plugin/0.1.7/servers/enterprise_core/main.py
   - ✔ Connected
 ```
 
