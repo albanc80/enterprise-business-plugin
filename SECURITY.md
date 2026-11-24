@@ -118,6 +118,16 @@ threads and two concurrent processes: 24 entries, chain intact, every append lan
 If a writer cannot get the lock it returns `audit_locked` and writes nothing, rather than appending
 outside the chain.
 
+## Accepted limitations
+
+Six limits are accepted by design rather than fixed: the in-process token ledger, the
+absence of an external anchor on the audit chain, unverified approver identity, no
+authentication, the category-scoped tool verdict, and the caller-declared operation.
+
+Each is documented with what it costs, why it is accepted, what would change that, and a
+test asserting the gap still exists — see [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
+Naming where this package stops and another layer must begin is the control.
+
 ## Review findings
 
 An external review of 0.1.0 found a defect in the approval gate. It is recorded here because a

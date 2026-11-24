@@ -54,26 +54,56 @@ uv run --script tools/grade_answers.py
 **Do not build the answers file from `cases.json`.** Reading the expected values measures
 nothing but your ability to copy; the harness would happily report 100%.
 
-## Current status
+## Current status — the full suite has been run
 
 | | |
 |---|---|
 | Cases | 66, generated from the registry |
 | Grader self-check | 100% (feeding the expected values passes) |
-| Client answers recorded | **7 of 66** — a first sample, 7/7 correct |
-| Full-suite score | **not yet measured** |
+| Client run | **66 of 66 answered — 66 passed, 0 failed, 0 missing** |
+| Recorded evidence | [`answers.claude-2026-11-24.json`](answers.claude-2026-11-24.json) |
 
-The accuracy claim is now **measurable and partly measured**. The 7-case sample covered
-every question kind (two autonomy, one each of owner, verbatim quote, allowlist, refusal,
-unknown id) and was answered by Claude through the plugin's own MCP tools: 7 correct, 0
-wrong, 0 missing. That is evidence the loop works end to end — a client, the tools, the
-contract, the grader — not evidence that 93 contracts are accurate.
+Method: `tools/run_eval.py` asked the cases in batches of eight to Claude, which had the
+plugin's MCP tools available and was told to call them rather than answer from memory.
+Each batch was appended to disk, so a failure loses nothing; the whole run is reproducible
+with `uv run --script tools/run_eval.py` against any client.
 
-Running the sample also found a defect **in this harness**: the refusal case demanded
-`rule: "autonomy_ceiling"` exactly, and failed a correct answer that named the rule and
-then explained it. Rule and error fields now match on containment (`rule_contains`) while
-quoted text still demands an exact match. An evaluation that fails correct answers teaches
-you nothing, which is what the first real run was for.
+Every one of the 78 substantive fields matched **exactly** — no case needed the
+whitespace/case tolerance, and the only containment match was the refusal `rule`, which is
+containment by design.
+
+### What this does and does not prove
+
+**Proves:** a client can retrieve the right contract through these tools and report the
+effective autonomy, the owner, the acceptance line, the allowlist and a refusal without
+inventing identifiers. The retrieval layer and the contract text agree with each other.
+
+**Does not prove:** that the advice is good, that a different model behaves the same, or
+that 93 contracts are accurate — 16 were sampled.
+
+### Limits of this case set
+
+- **The allowlist cases barely discriminate.** Every sampled skill is A1 or A0, so all
+  sixteen allowlists are `["read"]`. Those cases test *refusal to widen* the allowlist,
+  which is the failure that matters, but they cannot distinguish one skill from another.
+- **One model, one session, one run.** No variance measurement, no second model, no repeat
+  to see whether a 66/66 is stable or lucky.
+- **The prompt names the answer fields.** That removes ambiguity in grading, and it also
+  makes the task easier than an open question would be.
+
+### A guard against a stale published score
+
+`tests/test_eval_harness.py::test_the_recorded_run_still_scores` replays the committed
+answers against the current cases. Edit a contract's owner, threshold or acceptance line
+and that test fails, forcing the run to be repeated rather than leaving a published 100%
+that no longer reproduces.
+
+### The first run found a defect in the harness, not the package
+
+The initial 7-case sample demanded `rule: "autonomy_ceiling"` exactly and failed a correct
+answer that named the rule and then explained it. Rule and error fields now match on
+containment while quoted contract text still demands an exact match. An evaluation that
+fails correct answers teaches you nothing — which is what a first real run is for.
 
 ## Keeping it honest
 

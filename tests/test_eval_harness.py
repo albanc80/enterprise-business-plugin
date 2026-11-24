@@ -135,3 +135,19 @@ def test_a_non_object_answer_is_a_failure_not_a_crash(cases):
     target = cases["cases"][0]
     report = grade_answers.grade(cases, {target["id"]: "I think it's A1"})
     assert any(f["id"] == target["id"] for f in report["failures"])
+
+
+def test_the_recorded_run_still_scores(cases):
+    """The committed answers are evidence, so they must keep matching the cases.
+
+    If a contract changes an owner, a threshold or an acceptance line, this fails and the
+    run has to be repeated. That is the intent: a published score that no longer
+    reproduces is worse than no score.
+    """
+    recorded = ROOT / "evals" / "answers.claude-2026-11-24.json"
+    if not recorded.exists():
+        pytest.skip("no recorded run in this checkout")
+    answers = json.loads(recorded.read_text(encoding="utf-8"))
+    report = grade_answers.grade(cases, answers)
+    assert report["score"] == 1.0, report["failures"][:3]
+    assert report["answered"] == report["total"]

@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.1.7-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
+[![version](https://img.shields.io/badge/version-0.1.8-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
 
 A portable **[Agent Plugins v1](https://agent-plugins.org)** package carrying a governed AI
 skills layer for business operations: **93 skill contracts across 12 business functions,
@@ -231,15 +231,30 @@ uv run --script tools/grade_answers.py --goldens    # the grader passes its own 
 Grading is exact after normalising whitespace and case, because a threshold restated in
 different words is the failure this package exists to prevent.
 
-**Status: measurable, partly measured.** A 7-case sample covering every question kind was
-answered by Claude through the plugin's MCP tools: 7 correct, 0 wrong. The full 66-case
-suite is not yet run, so this is evidence the loop works end to end — not evidence that 93
-contracts are accurate. Whether the *advice* is good needs a domain owner to rule on judgement, which no
+**Run:** all 66 cases answered by Claude through the plugin's own MCP tools — **66 passed,
+0 failed, 0 missing**, every substantive field exact. The recorded answers ship in
+[`evals/`](evals/answers.claude-2026-11-24.json) and a test replays them, so a contract
+edit that invalidates the score fails CI instead of leaving a stale claim.
+
+That is evidence the retrieval layer and the contract text agree, on 16 of 93 contracts
+with one model in one session. It is **not** evidence that the advice is good — that needs
+a domain owner to rule on judgement. See [`evals/README.md`](evals/README.md) for the
+caveats, including that the allowlist cases cannot discriminate between skills at A1. Whether the *advice* is good needs a domain owner to rule on judgement, which no
 part of this package can supply. See [`evals/README.md`](evals/README.md).
+
+## Limitations
+
+Six limits are **accepted by design** — the in-process token ledger, no external anchor on
+the audit chain, unverified approver identity, no authentication, a category-scoped tool
+verdict, and a caller-declared operation. Each is documented with what it costs, why it is
+accepted, what would change that, and a test that asserts the gap still exists.
+
+See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md). A limitation you cannot test for is a
+belief.
 
 ## Status
 
-**Version 0.1.7 — reference implementation, unvalidated in use.**
+**Version 0.1.8 — reference implementation, unvalidated in use.**
 
 > **Every release so far has been a security release.** Two external reviews broke the
 > package: 0.1.0's approval gate accepted ids it never issued and could mint a token for a
@@ -249,7 +264,7 @@ part of this package can supply. See [`evals/README.md`](evals/README.md).
 tool-call gate assumed the connector had been checked (fixed in 0.1.5); and its
 audit writer forked the chain under concurrent appends (fixed in 0.1.6). Each fix
 > has a regression test written to fail against the version that shipped the defect — see
-> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.7, update. No adopter, no assigned process
+> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.8, update. No adopter, no assigned process
 owner, no measured baseline and no golden set exists yet. The version says so deliberately: the
 contract format and the governance model are settled enough to distribute, and not settled enough
 to promise stability.

@@ -1,0 +1,252 @@
+{
+  "eval.COM-01.accept": {
+    "acceptance": "Each reference is accessible to the requester and version is visible."
+  },
+  "eval.COM-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.COM-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.COM-01.autonomy": {
+    "autonomy_effective": "A0",
+    "mode": "advisory_only"
+  },
+  "eval.COM-01.owner": {
+    "owner": "Corporate Communications"
+  },
+  "eval.CSP-04.accept": {
+    "acceptance": "Escalation thresholds and calendars are policy-driven and versioned."
+  },
+  "eval.CSP-04.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.CSP-04.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.CSP-04.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.CSP-04.owner": {
+    "owner": "Support Operations"
+  },
+  "eval.FIN-02.accept": {
+    "acceptance": "No payment or ledger entry is authorized by a model-only match."
+  },
+  "eval.FIN-02.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.FIN-02.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.FIN-02.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.FIN-02.owner": {
+    "owner": "Finance Controller"
+  },
+  "eval.FND-06.accept": {
+    "acceptance": "No protected write executes without a matching live approval token."
+  },
+  "eval.FND-06.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.FND-06.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.FND-06.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.FND-06.owner": {
+    "owner": "Platform / AI Governance"
+  },
+  "eval.HR-01.accept": {
+    "acceptance": "Out-of-scope legal or policy conflicts route to HR; answers cite active policy versions."
+  },
+  "eval.HR-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.HR-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.HR-01.autonomy": {
+    "autonomy_effective": "A0",
+    "mode": "advisory_only"
+  },
+  "eval.HR-01.owner": {
+    "owner": "HR Operations"
+  },
+  "eval.HSE-01.accept": {
+    "acceptance": "Missing or conflicting procedures trigger stop-and-escalate, not improvised instruction."
+  },
+  "eval.HSE-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.HSE-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.HSE-01.autonomy": {
+    "autonomy_effective": "A0",
+    "mode": "advisory_only"
+  },
+  "eval.HSE-01.owner": {
+    "owner": "HSE & Quality Leader"
+  },
+  "eval.IT-01.accept": {
+    "acceptance": "Severity overrides require human validation for production/security incidents."
+  },
+  "eval.IT-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.IT-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.IT-01.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.IT-01.owner": {
+    "owner": "IT Operations / Security"
+  },
+  "eval.IT-08.accept": {
+    "acceptance": "Run only allowlisted commands; abort on failed health, cap or idempotency checks."
+  },
+  "eval.IT-08.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.IT-08.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.IT-08.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.IT-08.owner": {
+    "owner": "IT Operations / Security"
+  },
+  "eval.LGL-01.accept": {
+    "acceptance": "Each extracted obligation has source span and legal reviewer confirmation."
+  },
+  "eval.LGL-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.LGL-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.LGL-01.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.LGL-01.owner": {
+    "owner": "Legal / Compliance Lead"
+  },
+  "eval.OFC-04.accept": {
+    "acceptance": "Automatic ordering limited to pre-approved low-value spend caps."
+  },
+  "eval.OFC-04.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.OFC-04.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.OFC-04.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.OFC-04.owner": {
+    "owner": "Workplace Services"
+  },
+  "eval.PMO-01.accept": {
+    "acceptance": "Charter distinguishes facts from assumptions and has named accountable owner."
+  },
+  "eval.PMO-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.PMO-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.PMO-01.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.PMO-01.owner": {
+    "owner": "PMO / Transformation Lead"
+  },
+  "eval.REV-01.accept": {
+    "acceptance": "Automatic edits restricted to explicitly authorized low-risk fields and dedupe rules."
+  },
+  "eval.REV-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.REV-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.REV-01.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.REV-01.owner": {
+    "owner": "Revenue Operations"
+  },
+  "eval.SCM-01.accept": {
+    "acceptance": "No request bypasses delegated spend authority or sourcing thresholds."
+  },
+  "eval.SCM-01.allowlist": {
+    "allowed_operations": [
+      "read"
+    ]
+  },
+  "eval.SCM-01.approval": {
+    "allowed": false,
+    "rule": "autonomy_ceiling"
+  },
+  "eval.SCM-01.autonomy": {
+    "autonomy_effective": "A1",
+    "mode": "draft_only"
+  },
+  "eval.SCM-01.owner": {
+    "owner": "Supply Chain Operations"
+  },
+  "eval.unknown-01": {
+    "error": "unknown skill_id 'ZZZ-99'"
+  }
+}
