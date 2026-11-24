@@ -44,7 +44,7 @@ These are deliberate and visible rather than implied to be solved:
    separation of duties, expiry, binding and evidence completeness. Confirming that a named
    approver actually held the delegated authority is the identity system's job.
 
-## Review findings, fixed in 0.1.1
+## Review findings
 
 An external review of 0.1.0 found a defect in the approval gate. It is recorded here because a
 governance package whose failure is invisible has no business claiming to govern anything.
@@ -60,6 +60,18 @@ governance package whose failure is invisible has no business claiming to govern
 
 Each fix carries a regression test in `tests/test_approval_gate.py` that reproduces the original
 attack. The tests were written to fail against 0.1.0.
+
+A second review pass then attacked the tools around the gate, and found that several accepted
+input they should have refused. Fixed in 0.1.2:
+
+| Severity | Finding | Fix |
+|---|---|---|
+| P2 | The approver's `evidence.proposed_action` did not have to match the action being approved, so a summary saying something else still passed. | The two must match after whitespace normalisation. Spacing is tolerated; different content is not. |
+| P2 | `authorised_approver` only checked that the role field was non-empty, so "intern" passed as authority. | The role must appear in `rules.authorised_approver.roles_by_risk` for the contract's risk tier. That table ships empty and denies until the adopter populates it — the pack verifies delegated authority, it cannot invent an org chart. |
+| P2 | `score_skills` accepted unknown weight keys and negative values, returning a score of 102. | Weights must be recognised keys in 0..100 with a non-zero total. Invalid input returns `error`, not a ranking. |
+| P2 | `list_skills` returned 0 rows and no error for an invalid filter, which reads as "no such skill". Domain display names ("Finance & accounting") also matched nothing, because contracts store ids ("Finance"). | Invalid filters return `error` naming the valid values. Domains resolve from id, display name or an unambiguous fragment; an ambiguous fragment is an error. |
+| P3 | The MCP probe requested protocol `2024-11-05`, so it verified old-client tolerance rather than current protocol support. | The probe takes the version from the server's own SDK. |
+| P3 | `get_contract` returned the contract's declared `side_effects` only, so FND-06 advertised "Explicitly approved, scoped system write" while resolving to A1 draft-only. | The response now carries `side_effects.effective`, derived from the effective mode, with a note when the declared text describes a level the package has removed. |
 
 ## Design decisions that matter for review
 

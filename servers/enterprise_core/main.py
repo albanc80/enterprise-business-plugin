@@ -171,12 +171,30 @@ def list_skills(
 ) -> dict[str, Any]:
     """Search the skill registry and get a compact row per capability.
 
-    Filters: `domain` (e.g. Finance, HSE, Foundation), `risk` (Low, Moderate, High,
-    Critical), `wave` (0-3), `autonomy` (A0-A3 as requested), `query` (free text over
-    name, purpose, metric, owner, systems). Call get_contract with an id for the full
+    Filters: `domain` (e.g. Finance, HSE, Foundation — the domain id, its display name
+    or an unambiguous fragment of either), `risk` (Low, Moderate, High, Critical), `wave` (0-3), `autonomy`
+    (A0-A3 as requested), `query` (free text over name, purpose, metric, owner, systems).
+    An invalid filter returns an error naming the valid values; it does not return an
+    empty list, because an empty list reads as "no such skill" rather than "bad filter". Call get_contract with an id for the full
     contract before advising on a specific skill.
     """
-    found = registry.find(domain=domain, risk=risk, wave=wave, autonomy=autonomy, query=query)
+    problems = registry.validate_filters(
+        domain=domain, risk=risk, wave=wave, autonomy=autonomy, limit=limit
+    )
+    if problems:
+        return {
+            "error": "invalid filter",
+            "problems": problems,
+            "matched": 0,
+            "returned": 0,
+            "truncated": False,
+            "skills": [],
+            "note": "The filter was rejected rather than run; an empty result would have read as 'no such skill'.",
+        }
+    canonical_domain, _ = registry.resolve_domain(domain)
+    found = registry.find(
+        domain=canonical_domain, risk=risk, wave=wave, autonomy=autonomy, query=query
+    )
     rows = [registry.public_view(c) for c in found[: max(1, limit)]]
     return {
         "matched": len(found),
@@ -194,6 +212,9 @@ def get_contract(skill_id: str) -> dict[str, Any]:
     Give the user the owner, the acceptance criterion, the escalation path and the
     side effects. Quote the acceptance criterion when asked whether the skill is
     ready — being proposed is not being validated.
+
+    Use `side_effects.effective`, not `contract.side_effects`: the contract states what
+    the skill was specified to do, while the package may resolve it to a lower level.
     """
     reg = registry.skills()
     if skill_id not in reg:
@@ -208,6 +229,7 @@ def get_contract(skill_id: str) -> dict[str, Any]:
     resolution = registry.resolve_autonomy(skill_id)
     return {
         "contract": contract,
+        "side_effects": registry.side_effects(skill_id),
         "score": registry.score(contract),
         "autonomy_resolution": resolution,
     }
@@ -373,19 +395,39 @@ def score_skills(
     accepts impact, readiness, reuse, effort and risk and is normalised, so the
     numbers do not have to sum to anything in particular.
     """
+    merged, weight_errors = registry.validate_weights(weights)
+    if weight_errors:
+        return {
+            "error": "invalid weights",
+            "problems": weight_errors,
+            "valid_keys": sorted(merged),
+            "range": [registry.WEIGHT_MIN, registry.WEIGHT_MAX],
+            "ranked": [],
+            "total_scored": 0,
+        }
+    if skill_ids is not None:
+        unknown = [i for i in skill_ids if i not in registry.skills()]
+        if unknown:
+            return {
+                "error": "unknown skill_ids",
+                "problems": [f"{i!r} is not in the registry" for i in unknown],
+                "ranked": [],
+                "total_scored": 0,
+            }
+
     reg = registry.skills()
     candidates = (
-        [reg[i] for i in skill_ids if i in reg] if skill_ids else list(reg.values())
+        [reg[i] for i in skill_ids] if skill_ids else list(reg.values())
     )
     ranked = sorted(
         ({"id": c["id"], "name": c["name"], "domain": c["domain"], "wave": c["wave"],
-          "risk": c["risk"], "score": registry.score(c, weights)} for c in candidates),
+          "risk": c["risk"], "score": registry.score(c, merged)} for c in candidates),
         key=lambda r: (-r["score"], r["wave"], r["id"]),
     )
     return {
         "ranked": ranked[: max(1, limit)],
         "total_scored": len(ranked),
-        "weights_used": weights or registry.scoring_policy()["default_weights"],
+        "weights_used": merged,
         "caveat": registry.scoring_policy()["caveat"],
     }
 

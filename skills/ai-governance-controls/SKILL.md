@@ -40,13 +40,20 @@ and the reason — never a workaround.
 2. If `downgrades` is non-empty, **say so first**. A silent downgrade is the failure
    mode this skill exists to prevent: the user believes they have A2 and they do not.
 3. If `mode` is `human_confirm`, run `approval_gate` with the evidence bundle. The
-   gate checks action-specific binding, expiry, single use, separation of duties and
-   a complete evidence pack. On pass it issues a single-use token; redeem it once.
-4. Name the accountable role from the SRD: executive sponsor for scope and funding,
+   gate checks action-specific binding, expiry, single use, separation of duties, the
+   approver's delegated authority and a complete evidence pack. On pass it issues a
+   single-use token; redeem it once.
+4. **Approver authority is configuration, not credentials.** The gate only accepts an
+   approver role that `src/policies/approval.yaml` lists for the contract's risk tier
+   under `rules.authorised_approver.roles_by_risk`. That table ships empty, so every
+   approval denies until the adopting organisation populates it — the package verifies
+   delegated authority, it cannot invent it. If a gate denies on `authorised_approver`,
+   say which tier is unconfigured rather than suggesting a more senior-sounding role.
+5. Name the accountable role from the SRD: executive sponsor for scope and funding,
    function process owner for workflow and delegation caps, platform owner for
    technical release, security/privacy for signoff, domain SME (legal, HR, HSE,
    finance) for expert release, independent QA for test evidence.
-5. `audit_append` the decision with the approval id and the mode.
+6. `audit_append` the decision with the approval id and the mode.
 
 ## The six safeguards (cite, never weaken)
 

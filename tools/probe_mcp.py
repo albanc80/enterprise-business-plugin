@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pyyaml>=6,<7"]
+# dependencies = ["mcp>=2,<3", "pyyaml>=6,<7"]
 # ///
 """Prove the package speaks MCP from a given install location.
 
@@ -28,6 +28,21 @@ import time
 from pathlib import Path
 
 import yaml
+
+# Take the version from the SDK the server runs on, so this probe cannot drift behind
+# the protocol it claims to verify. Requesting an old version only proves the server
+# tolerates old clients, not that it speaks the current protocol.
+def _sdk_protocol() -> str:
+    """The protocol version the server's own SDK speaks, or a conservative fallback."""
+    try:
+        from mcp.types import LATEST_PROTOCOL_VERSION
+
+        return str(LATEST_PROTOCOL_VERSION)
+    except ImportError:  # pragma: no cover - the probe must run without the SDK too
+        return "2025-06-18"
+
+
+PROTOCOL: str = _sdk_protocol()
 
 # The server's advertised tool surface. Kept here so adding a tool without updating
 # the probe is a visible diff rather than a silent gap.
@@ -97,7 +112,7 @@ def main() -> int:
     failures: list[str] = []
 
     send({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
-        "protocolVersion": "2024-11-05", "capabilities": {},
+        "protocolVersion": PROTOCOL, "capabilities": {},
         "clientInfo": {"name": "probe-mcp", "version": "1"}}})
     init = reply(1)
     if not init:

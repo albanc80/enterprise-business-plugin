@@ -8,6 +8,7 @@ entire claim is that approvals are verified rather than trusted.
 
 from __future__ import annotations
 
+import copy
 import sys
 from pathlib import Path
 
@@ -32,22 +33,34 @@ def evidence(skill_id: str = "FIN-02", risk: str = "Critical") -> dict:
 
 @pytest.fixture
 def a2_deployment(monkeypatch):
-    """A deployment that has opted a skill into A2.
+    """A deployment that has done the full A2 opt-in: ceiling and role directory.
 
-    The shipped package cannot reach A2, so the token lifecycle is only reachable in a
-    deployment that has done the opt-in work (owner named, approval gate configured,
-    audit on, rollback path defined). Simulating it here keeps the lifecycle tested
-    without weakening the shipped ceiling.
+    The shipped package can reach neither, so the token lifecycle only exists in a
+    deployment that has named an owner, configured the gate, turned on auditing,
+    defined a rollback path and populated the approver roles for the skill's risk
+    tier. Simulating all of that keeps the lifecycle tested without weakening the
+    shipped defaults, and the defaults themselves are asserted separately.
     """
-    real = registry.resolve_autonomy
+    real_resolve = registry.resolve_autonomy
 
     def fake(skill_id, *args, **kwargs):
-        resolved = dict(real(skill_id, *args, **kwargs))
+        resolved = dict(real_resolve(skill_id, *args, **kwargs))
         resolved["mode"] = "human_confirm"
         resolved["autonomy_effective"] = "A2"
         return resolved
 
     monkeypatch.setattr(registry, "resolve_autonomy", fake)
+
+    real_rules = registry.approval_rules
+
+    def opted_in_rules():
+        rules = copy.deepcopy(real_rules())
+        directory = rules["rules"]["authorised_approver"]["roles_by_risk"]
+        for tier in directory:
+            directory[tier] = ["finance-controller", "service-desk-lead"]
+        return rules
+
+    monkeypatch.setattr(registry, "approval_rules", opted_in_rules)
     return fake
 
 
@@ -325,3 +338,89 @@ def test_autonomy_and_allowlist_refuse_independently():
     )
     assert result["allowed"] is False
     assert {"autonomy_ceiling", "operation_permitted"} <= set(result["failed_rules"])
+
+
+# ------------------------------------------- E6: the approver must approve THIS action
+def test_evidence_action_must_match_the_action(a2_deployment):
+    """A summary that differs from the action is not an approval of the action."""
+    misleading = evidence()
+    misleading["proposed_action"] = "something else entirely"
+
+    result = governance.evaluate_approval(
+        "FIN-02",
+        "release payment against invoice INV-4471",
+        "requester-1",
+        "approver-1",
+        misleading,
+        approver_role="finance-controller",
+        issued={},
+    )
+    assert result["allowed"] is False
+    assert "action_specific" in result["failed_rules"]
+
+
+def test_evidence_action_matching_ignores_spacing_only(a2_deployment):
+    """Whitespace differences are tolerated; content differences are not."""
+    same = evidence()
+    same["proposed_action"] = "release   payment against invoice INV-4471"
+
+    result = governance.evaluate_approval(
+        "FIN-02",
+        "release payment against invoice INV-4471",
+        "requester-1",
+        "approver-1",
+        same,
+        approver_role="finance-controller",
+        issued={},
+    )
+    assert result["allowed"] is True
+
+
+def test_an_unlisted_role_is_not_authority(a2_deployment):
+    """`intern` states a role; it does not hold one."""
+    result = governance.evaluate_approval(
+        "FIN-02",
+        evidence()["proposed_action"],
+        "requester-1",
+        "approver-1",
+        evidence(),
+        approver_role="intern",
+        issued={},
+    )
+    assert result["allowed"] is False
+    assert "authorised_approver" in result["failed_rules"]
+
+
+def test_shipped_policy_configures_no_approver_roles():
+    """The package must not invent an authority model on the adopter's behalf."""
+    directory = registry.approval_rules()["rules"]["authorised_approver"]["roles_by_risk"]
+    assert set(directory) == {"Low", "Moderate", "High", "Critical"}
+    assert all(roles == [] for roles in directory.values()), (
+        "shipping populated approver roles would grant authority no one in the "
+        "adopting organisation delegated"
+    )
+
+
+def test_unconfigured_role_directory_denies_even_with_a_real_role(monkeypatch):
+    """With the shipped (empty) directory, a plausible role is still refused."""
+    real_resolve = registry.resolve_autonomy
+    monkeypatch.setattr(
+        registry,
+        "resolve_autonomy",
+        lambda sid, *a, **kw: {**real_resolve(sid, *a, **kw), "mode": "human_confirm",
+                               "autonomy_effective": "A2"},
+    )
+    result = governance.evaluate_approval(
+        "FIN-02",
+        evidence()["proposed_action"],
+        "requester-1",
+        "approver-1",
+        evidence(),
+        approver_role="finance-controller",
+        issued={},
+    )
+    assert result["allowed"] is False
+    assert "authorised_approver" in result["failed_rules"]
+    assert "roles_by_risk" in " ".join(
+        c["detail"] for c in result["checks"] if c["rule"] == "authorised_approver"
+    )

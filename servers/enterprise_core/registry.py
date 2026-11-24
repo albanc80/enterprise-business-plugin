@@ -12,6 +12,7 @@ skills cite the same files, so a citation and a computation cannot drift apart.
 from __future__ import annotations
 
 import json
+import math
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -369,15 +370,144 @@ def risk_rank(risk: str) -> int:
     return int(scoring_policy()["risk_rank"][risk])
 
 
+VALID_RISK_LEVELS = ("Low", "Moderate", "High", "Critical")
+VALID_AUTONOMY = ("A0", "A1", "A2", "A3")
+VALID_WAVES = (0, 1, 2, 3)
+
+# Weights are percentages summing to 100 in the default policy. The scale is relative,
+# but a negative weight inverts a metric and a zero total divides the score by nothing;
+# both produced values outside 0..100.
+WEIGHT_MIN, WEIGHT_MAX = 0.0, 100.0
+
+_SIDE_EFFECTS_BY_MODE = {
+    "advisory_only": "Reads registry and policy, returns analysis. No draft, no write; the caller acts.",
+    "draft_only": "Produces drafts, summaries and recommendations for human review. No system write is performed.",
+    "human_confirm": "Performs the approved action once, after a named human confirms it.",
+    "auto": "Performs the action within policy without per-action confirmation.",
+}
+
+
+def validate_weights(weights: dict[str, Any] | None) -> tuple[dict[str, float], list[str]]:
+    """Merge caller weights over the defaults, or explain why they are unusable."""
+    merged = {k: float(v) for k, v in scoring_policy()["default_weights"].items()}
+    errors: list[str] = []
+    for key, value in (weights or {}).items():
+        if key not in merged:
+            errors.append(f"unknown weight {key!r}; valid keys: {sorted(merged)}")
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            errors.append(f"weight {key!r} must be a number, got {value!r}")
+            continue
+        if not math.isfinite(number):
+            errors.append(f"weight {key!r} must be finite, got {value!r}")
+            continue
+        if not WEIGHT_MIN <= number <= WEIGHT_MAX:
+            errors.append(
+                f"weight {key!r} must be between {WEIGHT_MIN:g} and {WEIGHT_MAX:g}, got {number:g}"
+            )
+            continue
+        merged[key] = number
+    if not errors and sum(merged.values()) <= 0:
+        errors.append("weights sum to zero, so the score would be undefined")
+    return merged, errors
+
+
+def resolve_domain(name: str | None) -> tuple[str | None, list[str]]:
+    """Resolve a domain to the id the contracts actually carry.
+
+    Contracts store domain ids ("Finance"); the policy also carries display names
+    ("Finance & accounting"). Both are legitimate spellings of the same thing, and a
+    caller who uses the one that does not match got an empty list that read as
+    "no skills in Finance". An ambiguous fragment is an error, not a guess.
+    """
+    if not name:
+        return None, []
+    entries = domains()
+    lookup: dict[str, str] = {}
+    for entry in entries:
+        for label in (entry["id"], entry["name"]):
+            lookup[str(label).strip().casefold()] = entry["id"]
+
+    key = name.strip().casefold()
+    if key in lookup:
+        return lookup[key], []
+
+    ids = sorted(
+        {
+            entry["id"]
+            for entry in entries
+            if key in str(entry["id"]).casefold() or key in str(entry["name"]).casefold()
+        }
+    )
+    if len(ids) == 1:
+        return ids[0], []
+    if not ids:
+        return None, [
+            f"unknown domain {name!r}; valid: {sorted(entry['id'] for entry in entries)} "
+            f"(display names also accepted, e.g. 'Finance & accounting')"
+        ]
+    return None, [f"ambiguous domain {name!r}; matches: {ids}"]
+
+
+def validate_filters(
+    domain: str | None = None,
+    risk: str | None = None,
+    wave: int | None = None,
+    autonomy: str | None = None,
+    limit: int | None = None,
+) -> list[str]:
+    """A filter that matches nothing must say so, not return an empty list."""
+    problems: list[str] = []
+    if domain:
+        _, domain_problems = resolve_domain(domain)
+        problems.extend(domain_problems)
+    if risk and risk.lower() not in {r.lower() for r in VALID_RISK_LEVELS}:
+        problems.append(f"unknown risk {risk!r}; valid: {list(VALID_RISK_LEVELS)}")
+    if wave is not None and wave not in VALID_WAVES:
+        problems.append(f"wave must be one of {list(VALID_WAVES)}, got {wave!r}")
+    if autonomy and autonomy.upper() not in VALID_AUTONOMY:
+        problems.append(f"autonomy must be one of {list(VALID_AUTONOMY)}, got {autonomy!r}")
+    if limit is not None and limit < 1:
+        problems.append(f"limit must be at least 1, got {limit!r}")
+    return problems
+
+
+def side_effects(skill_id: str) -> dict[str, Any]:
+    """What the skill can actually do at its *effective* level.
+
+    A contract may declare A2 side effects while the package resolves the skill to A1.
+    Returning only the declared text lets a caller quote capabilities the package has
+    deliberately removed, so the effective description is reported alongside it.
+    """
+    contract = skills()[skill_id]
+    resolved = resolve_autonomy(skill_id)
+    mode = resolved["mode"]
+    requested = contract.get("autonomy_requested")
+    downgraded = resolved["autonomy_effective"] != requested
+    return {
+        "declared": contract.get("side_effects", ""),
+        "effective": _SIDE_EFFECTS_BY_MODE[mode],
+        "autonomy_requested": requested,
+        "autonomy_effective": resolved["autonomy_effective"],
+        "mode": mode,
+        "note": (
+            f"The declared text describes {requested}. This package resolves the skill to "
+            f"{resolved['autonomy_effective']} ({mode}), so the effective side effects are "
+            "the authoritative ones."
+            if downgraded
+            else None
+        ),
+    }
+
+
 def score(contract: dict[str, Any], weights: dict[str, float] | None = None) -> int:
     """Reproduce the SRD's opportunity score exactly (0..100)."""
-    policy = scoring_policy()
-    w = dict(policy["default_weights"])
-    if weights:
-        for key, value in weights.items():
-            if key in w:
-                w[key] = float(value)
-    total = sum(w.values()) or 1.0
+    w, errors = validate_weights(weights)
+    if errors:
+        raise ValueError("; ".join(errors))
+    total = sum(w.values())
     s = contract["scores"]
     value = (
         s["impact"] * w["impact"]

@@ -28,6 +28,20 @@ rules:
   separation_of_duties:
     statement: The approver is not the proposer and not the model.
     enforced: approver identity must differ from the requesting actor
+  authorised_approver:
+    statement: >-
+      The approver holds a role this deployment authorises for the contract's risk tier.
+      A role that merely exists is not authority.
+    enforced: >-
+      the approver's role must be listed for the contract's risk tier. An empty list
+      denies every approval for that tier, by design: this package verifies authority,
+      it does not invent your authority model. Populate the tier with the roles your
+      organisation has actually delegated before opting any skill into A2.
+    roles_by_risk:
+      Low: []
+      Moderate: []
+      High: []
+      Critical: []
   evidence_bundle:
     statement: The approver sees what they are approving.
     required_fields:

@@ -193,10 +193,23 @@ def evaluate_approval(
 
     missing = [field for field in required if not evidence.get(field)]
     req_norm, appr_norm = _norm_identity(requester_id), _norm_identity(approver_id)
+    action_norm = " ".join(proposed_action.split())
+    seen_by_approver = " ".join(str(evidence.get("proposed_action") or "").split())
+    action_bound = bool(action_norm) and seen_by_approver == action_norm
     check(
         "action_specific",
-        bool(proposed_action.strip()),
-        "approval binds to the exact proposed action digest",
+        action_bound,
+        (
+            "the approver's copy of the action matches the action being approved"
+            if action_bound
+            else (
+                f"evidence.proposed_action {seen_by_approver!r} is not the action being "
+                f"approved ({action_norm!r}); a summary that differs is not an approval "
+                "of this action"
+                if action_norm
+                else "no proposed action was supplied"
+            )
+        ),
     )
     check(
         "separation_of_duties",
@@ -217,11 +230,31 @@ def evaluate_approval(
         not missing,
         "complete" if not missing else f"missing: {', '.join(missing)}",
     )
-    check(
-        "authorised_approver",
-        bool(approver_role.strip()),
-        "approver role must be stated so delegation is auditable",
-    )
+    role_directory = rules.get("authorised_approver", {}).get("roles_by_risk", {})
+    allowed_roles = {
+        str(role).strip().casefold()
+        for role in role_directory.get(contract["risk"], [])
+        if str(role).strip()
+    }
+    role_norm = approver_role.strip().casefold()
+    if not allowed_roles:
+        approver_ok = False
+        approver_detail = (
+            f"no approver roles are configured for risk tier {contract['risk']!r}. This "
+            "package verifies authority, it does not invent it: populate "
+            "rules.authorised_approver.roles_by_risk in src/policies/approval.yaml."
+        )
+    else:
+        approver_ok = role_norm in allowed_roles
+        approver_detail = (
+            f"role {role_norm!r} is authorised for {contract['risk']}"
+            if approver_ok
+            else (
+                f"role {role_norm!r} is not authorised for risk tier {contract['risk']!r}; "
+                f"authorised: {sorted(allowed_roles)}"
+            )
+        )
+    check("authorised_approver", approver_ok, approver_detail)
 
     failed = [c for c in checks if c["status"] != "pass"]
     if failed:

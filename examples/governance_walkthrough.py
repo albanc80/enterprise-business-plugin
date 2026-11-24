@@ -17,6 +17,7 @@ No server, no network, no enterprise connection: this exercises governance logic
 
 from __future__ import annotations
 
+import copy
 import json
 import sys
 from pathlib import Path
@@ -109,7 +110,17 @@ def main() -> int:
         resolved["autonomy_effective"] = "A2"
         return resolved
 
+    real_rules = registry.approval_rules
+
+    def _roles_populated():
+        rules = copy.deepcopy(real_rules())
+        directory = rules["rules"]["authorised_approver"]["roles_by_risk"]
+        for tier in directory:
+            directory[tier] = [scenario["approver_role"]]
+        return rules
+
     registry.resolve_autonomy = _opted_in
+    registry.approval_rules = _roles_populated
     try:
         granted = governance.evaluate_approval(
             skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
@@ -154,6 +165,7 @@ def main() -> int:
         print(f"         {replay.get('error', '')}\n")
     finally:
         registry.resolve_autonomy = real_resolve
+        registry.approval_rules = real_rules
 
     print("5. RELEASE — evidence gaps block deployment, pilot included")
     release = governance.evaluate_release(skill_id, scenario["release_evidence"])
