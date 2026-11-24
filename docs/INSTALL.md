@@ -69,6 +69,36 @@ Codex needs a **marketplace**, not just a plugin: it reads
 For a local working copy during development, `codex plugin marketplace add ./` from the repo
 root works too, and `~/.codex/skills` accepts the skill folders directly.
 
+### Verifying it end to end, headless
+
+`codex mcp list` should show `enterprise-core` **enabled**, pointing at the plugin cache with
+`PLUGIN_DATA` and `PLUGIN_ROOT` set. To prove the server actually answers, call a governance
+tool rather than a code-generation prompt:
+
+```bash
+codex exec --skip-git-repo-check --approve-for-me \
+  "Call the enterprise-core MCP tool route_autonomy for skill IT-08 with requested autonomy A3."
+
+codex exec --skip-git-repo-check --approve-for-me \
+  "Use the enterprise-core tools. A named approver with a complete evidence bundle asks to \
+   release a payment under skill FIN-02. Call approval_gate and report whether a token was issued."
+```
+
+Verified output on this package:
+
+```
+mcp: enterprise-core/route_autonomy (completed)
+A1, draft_only, downgraded true
+
+Token issued (test fixture)? No.
+Failed rules — autonomy_ceiling, operation_permitted.
+```
+
+**`--approve-for-me` is required.** Without it the call stops at
+`MCP tool call requires approval, but approval policy is never` — the exec session cannot
+prompt, so it blocks. That message is an approval-policy problem, not an install problem: do
+not go hunting in the plugin for it.
+
 ## Claude (Code, Desktop)
 
 Claude is **not** an Agent Plugins v1 client, so the package ships a shim at
