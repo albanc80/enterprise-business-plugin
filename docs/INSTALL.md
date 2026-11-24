@@ -145,7 +145,7 @@ a kill switch. That is a deployment and security decision, not a packaging one.
 
 ## OpenClaw
 
-OpenClaw is a v1 client; install through its plugin bundles path
+OpenClaw is a v1 client and should work through its plugin bundles path; it was not tested against
 (`docs.openclaw.ai/plugins/bundles`), or point it at the skill folders in `skills/` and register
 the MCP server with `openclaw mcp set`.
 
