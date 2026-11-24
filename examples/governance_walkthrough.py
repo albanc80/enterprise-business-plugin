@@ -17,7 +17,6 @@ No server, no network, no enterprise connection: this exercises governance logic
 
 from __future__ import annotations
 
-import copy
 import json
 import sys
 from pathlib import Path
@@ -99,7 +98,7 @@ def main() -> int:
     assert not at_ceiling["allowed"], "a draft-only skill must never receive a token"
     assert issued == {}, "no token may exist for a skill the ceiling forbids"
 
-    print("4. APPROVAL — under an A2 deployment a token binds to exactly one action")
+    print("4. APPROVAL — the contract owner may approve; a token binds to exactly one action")
     # Simulate the opt-in a real deployment would perform: named owner, approval gate
     # configured, audit on, rollback path defined. The shipped package does not do this.
     real_resolve = registry.resolve_autonomy
@@ -110,18 +109,19 @@ def main() -> int:
         resolved["autonomy_effective"] = "A2"
         return resolved
 
-    real_rules = registry.approval_rules
-
-    def _roles_populated():
-        rules = copy.deepcopy(real_rules())
-        directory = rules["rules"]["authorised_approver"]["roles_by_risk"]
-        for tier in directory:
-            directory[tier] = [scenario["approver_role"]]
-        return rules
-
     registry.resolve_autonomy = _opted_in
-    registry.approval_rules = _roles_populated
     try:
+        # An A2 deployment still cannot get a token for a role that is not the contract
+        # owner and not listed for the risk tier. No configuration was changed here, so
+        # this is the shipped authority model.
+        near_miss = governance.evaluate_approval(
+            skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
+            scenario["evidence"], approver_role="AP controller", issued=issued,
+        )
+        check("an unauthorised role", "denied" if not near_miss["allowed"] else "granted", "denied")
+        print(f"         {[c['detail'] for c in near_miss['checks'] if c['rule'] == 'authorised_approver'][0]}\n")
+        assert not near_miss["allowed"], "a role nobody delegated must not approve"
+
         granted = governance.evaluate_approval(
             skill_id, scenario["proposed_action"], scenario["requester"], scenario["approver"],
             scenario["evidence"], approver_role=scenario["approver_role"], issued=issued,
@@ -165,7 +165,6 @@ def main() -> int:
         print(f"         {replay.get('error', '')}\n")
     finally:
         registry.resolve_autonomy = real_resolve
-        registry.approval_rules = real_rules
 
     print("5. RELEASE — evidence gaps block deployment, pilot included")
     release = governance.evaluate_release(skill_id, scenario["release_evidence"])

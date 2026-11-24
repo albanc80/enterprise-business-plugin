@@ -30,13 +30,15 @@ rules:
     enforced: approver identity must differ from the requesting actor
   authorised_approver:
     statement: >-
-      The approver holds a role this deployment authorises for the contract's risk tier.
-      A role that merely exists is not authority.
+      The approver is the accountable owner of the skill's function, or holds a role this
+      deployment has delegated authority to for the contract's risk tier. A role that
+      merely exists is not authority.
     enforced: >-
-      the approver's role must be listed for the contract's risk tier. An empty list
-      denies every approval for that tier, by design: this package verifies authority,
-      it does not invent your authority model. Populate the tier with the roles your
-      organisation has actually delegated before opting any skill into A2.
+      the approver's role must either match the contract's declared owner (authority the
+      source document already assigns, so it needs no configuration) or appear in
+      roles_by_risk for the contract's risk tier. Anything else denies. An empty tier list
+      is not a hole: it only means the owner is the sole approver, which is the narrowest
+      default. Populate the tier when the owner delegates.
     roles_by_risk:
       Low: []
       Moderate: []

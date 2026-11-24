@@ -22,6 +22,12 @@ def digest(payload: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
 
+def _norm_role(value: str) -> str:
+    """Roles compare loosely: case, spacing and punctuation are spelling, not authority."""
+    spaced = "".join(ch if ch.isalnum() else " " for ch in str(value or ""))
+    return " ".join(spaced.split()).casefold()
+
+
 def _norm_identity(value: str) -> str:
     """Identities compare on their normalised form, never raw strings."""
     return " ".join(str(value or "").split()).casefold()
@@ -231,30 +237,42 @@ def evaluate_approval(
         "complete" if not missing else f"missing: {', '.join(missing)}",
     )
     role_directory = rules.get("authorised_approver", {}).get("roles_by_risk", {})
-    allowed_roles = {
-        str(role).strip().casefold()
-        for role in role_directory.get(contract["risk"], [])
-        if str(role).strip()
+    listed_roles = {
+        _norm_role(role) for role in role_directory.get(contract["risk"], []) if str(role).strip()
     }
-    role_norm = approver_role.strip().casefold()
-    if not allowed_roles:
-        approver_ok = False
+    # The contract names an accountable owner per skill, in the source document. That is
+    # delegated authority the pack did not invent, so it is a valid approver without any
+    # configuration — and being the owner of the function is the narrowest form of it.
+    owner_roles = {
+        _norm_role(part) for part in str(contract.get("owner", "")).split("/") if part.strip()
+    }
+    role_norm = _norm_role(approver_role)
+    matches_owner = bool(role_norm) and role_norm in owner_roles
+    matches_list = bool(role_norm) and role_norm in listed_roles
+
+    if matches_list:
+        approver_ok, approver_basis = True, f"listed for risk tier {contract['risk']}"
         approver_detail = (
-            f"no approver roles are configured for risk tier {contract['risk']!r}. This "
-            "package verifies authority, it does not invent it: populate "
-            "rules.authorised_approver.roles_by_risk in src/policies/approval.yaml."
+            f"role {approver_role.strip()!r} is authorised by roles_by_risk for "
+            f"{contract['risk']}"
+        )
+    elif matches_owner:
+        approver_ok, approver_basis = True, "contract owner"
+        approver_detail = (
+            f"role {approver_role.strip()!r} matches the contract owner "
+            f"{contract.get('owner')!r}"
         )
     else:
-        approver_ok = role_norm in allowed_roles
+        approver_ok, approver_basis = False, None
         approver_detail = (
-            f"role {role_norm!r} is authorised for {contract['risk']}"
-            if approver_ok
-            else (
-                f"role {role_norm!r} is not authorised for risk tier {contract['risk']!r}; "
-                f"authorised: {sorted(allowed_roles)}"
-            )
+            f"role {approver_role.strip()!r} is neither listed for risk tier "
+            f"{contract['risk']!r} nor the contract owner {contract.get('owner')!r}. "
+            "Authority comes from the contract's owner or from "
+            "rules.authorised_approver.roles_by_risk — not from the role merely existing."
         )
     check("authorised_approver", approver_ok, approver_detail)
+    if approver_basis:
+        checks[-1]["basis"] = approver_basis
 
     failed = [c for c in checks if c["status"] != "pass"]
     if failed:
@@ -297,6 +315,9 @@ def evaluate_approval(
         "requester": req_norm,
         "approver": appr_norm,
         "approver_role": approver_role.strip(),
+        "approver_authority": next(
+            (c.get("basis") for c in checks if c["rule"] == "authorised_approver"), None
+        ),
         "risk": contract["risk"],
         "issued_at": clock,
         "expires_at": expires_at,

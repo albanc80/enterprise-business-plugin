@@ -43,12 +43,15 @@ and the reason — never a workaround.
    gate checks action-specific binding, expiry, single use, separation of duties, the
    approver's delegated authority and a complete evidence pack. On pass it issues a
    single-use token; redeem it once.
-4. **Approver authority is configuration, not credentials.** The gate only accepts an
-   approver role that `src/policies/approval.yaml` lists for the contract's risk tier
-   under `rules.authorised_approver.roles_by_risk`. That table ships empty, so every
-   approval denies until the adopting organisation populates it — the package verifies
-   delegated authority, it cannot invent it. If a gate denies on `authorised_approver`,
-   say which tier is unconfigured rather than suggesting a more senior-sounding role.
+4. **Approver authority comes from the contract, not from seniority.** The gate accepts
+   an approver role only if it matches the skill's declared owner (the `owner` in the
+   contract, e.g. "Finance Controller" — authority the source document already assigns,
+   needing no configuration) or appears in `src/policies/approval.yaml` under
+   `rules.authorised_approver.roles_by_risk` for the contract's risk tier. An empty tier
+   list is not a hole: it means the owner is the sole approver, which is the narrowest
+   default. If a gate denies on `authorised_approver`, name the contract's owner and the
+   unconfigured tier — never suggest a more senior-sounding role, and never invent a
+   delegation the organisation has not made.
 5. Name the accountable role from the SRD: executive sponsor for scope and funding,
    function process owner for workflow and delegation caps, platform owner for
    technical release, security/privacy for signoff, domain SME (legal, HR, HSE,

@@ -6,7 +6,7 @@
   "proposed_action": "flag invoice INV-4471 for the AP exception queue with variance rationale",
   "requester": "ap.clerk@example.com",
   "approver": "ap.controller@example.com",
-  "approver_role": "AP controller",
+  "approver_role": "Finance Controller",
   "evidence": {
     "proposed_action": "flag invoice INV-4471 for the AP exception queue with variance rationale",
     "skill_id_and_version": "FIN-02@1.0.0",

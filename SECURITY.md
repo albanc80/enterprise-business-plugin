@@ -67,17 +67,36 @@ input they should have refused. Fixed in 0.1.2:
 | Severity | Finding | Fix |
 |---|---|---|
 | P2 | The approver's `evidence.proposed_action` did not have to match the action being approved, so a summary saying something else still passed. | The two must match after whitespace normalisation. Spacing is tolerated; different content is not. |
-| P2 | `authorised_approver` only checked that the role field was non-empty, so "intern" passed as authority. | The role must appear in `rules.authorised_approver.roles_by_risk` for the contract's risk tier. That table ships empty and denies until the adopter populates it — the pack verifies delegated authority, it cannot invent an org chart. |
+| P2 | `authorised_approver` only checked that the role field was non-empty, so "intern" passed as authority. | The role must be the contract's declared owner or appear in `rules.authorised_approver.roles_by_risk` for the contract's risk tier. Nothing else passes; a fragment of the title ("Controller", "AP controller") does not pass either. |
 | P2 | `score_skills` accepted unknown weight keys and negative values, returning a score of 102. | Weights must be recognised keys in 0..100 with a non-zero total. Invalid input returns `error`, not a ranking. |
 | P2 | `list_skills` returned 0 rows and no error for an invalid filter, which reads as "no such skill". Domain display names ("Finance & accounting") also matched nothing, because contracts store ids ("Finance"). | Invalid filters return `error` naming the valid values. Domains resolve from id, display name or an unambiguous fragment; an ambiguous fragment is an error. |
 | P3 | The MCP probe requested protocol `2024-11-05`, so it verified old-client tolerance rather than current protocol support. | The probe takes the version from the server's own SDK. |
 | P3 | `get_contract` returned the contract's declared `side_effects` only, so FND-06 advertised "Explicitly approved, scoped system write" while resolving to A1 draft-only. | The response now carries `side_effects.effective`, derived from the effective mode, with a note when the declared text describes a level the package has removed. |
+
+### 0.1.3 — how approver authority is established
+
+The 0.1.2 fix read the role table only, and that table ships empty. A gate that could not
+be satisfied without editing policy is a gate that gets switched off, so 0.1.3 adds the
+basis the source document already supplies: **each contract declares an accountable owner**
+("Finance Controller", "IT Operations / Security"), and that owner may approve their own
+function's skills. Matching tolerates case, spacing and punctuation — the way people
+actually type a title — but not a fragment of it: "Controller" and "AP controller" are
+refused, because substring matching would make every plausible-sounding title an approver.
+
+An empty `roles_by_risk` tier is therefore not a hole. It means the owner is the *sole*
+approver, which is the narrowest default available; the table exists so an owner can
+delegate, and each accepted approval records which basis authorised it
+(`approver_authority` on the issued token: `contract owner` or `listed for risk tier X`)
+so an auditor can see whether authority was delegated or inherent.
 
 ## Design decisions that matter for review
 
 - **An approval is not a string.** A token is an id this server issued, bound to a digest of one
   action, one operation and one evidence bundle, expiring on a clock. Everything else — an id from
   somewhere else, a spent token, a changed payload, a widened operation — is refused by name.
+- **Authority is inherited from the contract, not inferred from a job title.** The owner
+  named in the source document may approve; anyone else must be delegated in policy, and
+  the token records which.
 - **The ceiling outranks the approver.** A valid, complete, well-separated approval still cannot
   authorise an action the skill's effective autonomy forbids. Permission is not paperwork.
 - **Deny over degrade.** Every failure path denies. Missing evidence, an unknown skill id, a
