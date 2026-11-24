@@ -145,9 +145,15 @@ a kill switch. That is a deployment and security decision, not a packaging one.
 
 ## OpenClaw
 
-OpenClaw is a v1 client and should work through its plugin bundles path; it was not tested against
-(`docs.openclaw.ai/plugins/bundles`), or point it at the skill folders in `skills/` and register
-the MCP server with `openclaw mcp set`.
+OpenClaw is a v1 client, so this package should work through its plugin bundles path
+(`docs.openclaw.ai/plugins/bundles`), or by pointing it at the skill folders in `skills/`
+and registering the MCP server with `openclaw mcp set`.
+
+**Compatible, not tested.** No OpenClaw installation was available to run the probe against,
+so the row in the README's compatibility table says exactly that rather than claiming a
+verification that never happened. `tools/probe_mcp.py <install-path>` is the check to run
+once it is installed — it asserts the server speaks MCP and that the governance rules hold
+at that path.
 
 ## Copilot, Cursor, VS Code, Kiro, Antigravity
 
