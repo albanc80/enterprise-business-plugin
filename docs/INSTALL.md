@@ -22,7 +22,7 @@ to be wired by hand.
 | Client | What registers the server | When it takes effect |
 |---|---|---|
 | Hermes | `mcp.json` | next session ("deferred: MCP servers") |
-| Codex | `mcp.json`, via the plugin | next session — `codex mcp list` shows `enterprise-core` |
+| Codex | `mcp.json`, via the plugin | next session — `codex mcp list` shows `enterprise-core` **enabled**, with `PLUGIN_DATA` and `PLUGIN_ROOT` set |
 | Claude Code | `.mcp.json`, via `.claude-plugin/` | next session — `claude mcp list` shows the plugin entry |
 
 Dependencies resolve lazily on first boot — roughly 9 s with an empty `uv` cache. Warm them

@@ -166,8 +166,8 @@ Three states, deliberately distinguished — read the status column before quoti
 |---|---|---|---|---|
 | Hermes | yes | yes | `hermes plugins install` | **verified** — installed from remote, MCP registered, `list_capabilities` called in a fresh session |
 | Claude Code | yes | yes | `claude plugin marketplace add` | **verified** — installed from the marketplace; `claude mcp list` shows `plugin:enterprise-business-plugin:enterprise-core` **Connected**; `list_capabilities` returned `93 / A1` in a headless session |
-| Codex (CLI and ChatGPT desktop) | yes | expected | `codex plugin marketplace add` | **expected** — v1 client; Codex has no validate-only path, so verifying it means writing to `~/.codex` |
-| OpenClaw | yes | expected | plugin bundles, or skills dir + `openclaw mcp set` | **expected** — not exercised |
+| Codex (CLI and ChatGPT desktop) | yes | yes | `codex plugin marketplace add` | **verified** — marketplace registered from git, plugin `enabled = true`, and `codex mcp list` shows `enterprise-core` enabled at `0.1.8` with `PLUGIN_DATA`/`PLUGIN_ROOT` set; the served package at that path passes the probe, and two adopter prompts produced the expected answers |
+| OpenClaw | yes | expected | plugin bundles, or skills dir + `openclaw mcp set` | **not testable here** — no OpenClaw installation on the machine this was built on: only a stale npm launcher shim remains, which exits `MODULE_NOT_FOUND` because `node_modules/openclaw` is gone. Not a claim about the client |
 | Copilot, Cursor, VS Code, Kiro, Antigravity | yes | expected | native v1 clients — point at the repo | **expected** — v1 by specification, not exercised |
 | chatgpt.com, ChatGPT mobile | partial | **no** | no local process to spawn | permanent exclusion — skills answer qualitatively and say no verdict was produced |
 
