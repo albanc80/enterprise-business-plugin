@@ -229,7 +229,8 @@ def resolve_autonomy(
     if skill_id not in reg:
         raise KeyError(f"unknown skill_id {skill_id!r}; call list_skills first")
     contract = reg[skill_id]
-    requested = (requested or contract["autonomy_requested"]).upper()
+    raw_request = str(requested).strip() if requested is not None else ""
+    requested = (raw_request or contract["autonomy_requested"]).upper()
     if requested not in RANK:
         raise ValueError(f"requested autonomy {requested!r} is not one of A0..A3")
 

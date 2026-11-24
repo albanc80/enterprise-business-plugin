@@ -92,6 +92,32 @@ A category allow is not a tool approval, and the payload now says so.
 36 adversarial cases in `tests/test_tool_call_gate.py`, and the probe asserts the refusal when
 the connector verdict is omitted.
 
+### 0.1.6 — malformed input refuses, and the trail cannot be forked
+
+Fuzzing every tool with plausible-but-wrong arguments found six ways to get a stack trace
+instead of a decision, plus a concurrency defect that mattered more than all of them.
+
+| Severity | Finding | Fix |
+|---|---|---|
+| P2 | `release_gate` raised `AttributeError` on non-object `evidence` — a crash where a refusal belongs. | Returns `decision: blocked`, `error: invalid evidence`, and states the expected shape. Malformed `waivers` likewise. |
+| P2 | `check_connector(None)` raised `AttributeError`, so a caller passing null crashed the tool. | Returns `decision: rejected` with the reason. |
+| P2 | `list_requirements` accepted `priority: "bogus"` and returned `matched: 0` — the same defect fixed in `list_skills` in 0.1.2, never propagated here. | Returns `error: invalid filter` with the valid vocabularies, a `limit`, and `truncated`. |
+| P3 | Limits were inconsistent: `audit_trace`/`score_skills` silently clamped below 1, `list_skills` refused, `list_requirements` had no limit. | One rule everywhere: a limit below 1 is an error, never a clamp. |
+| P3 | `route_autonomy("IT-01", " A2 ")` refused while `"a2"` was accepted — padding was not stripped. | Input is stripped before parsing; blank means omitted. |
+| P3 | `audit_append(None)` recorded an empty record, padding the chain with entries that prove nothing. | A non-object or empty entry is refused and nothing is written. |
+
+**The concurrency defect: `audit_append` forked the chain.** It read the previous hash and then
+wrote, so two writers that both read before either wrote chained to the same entry. The trail then
+failed verification — a tampering alarm on a trail nobody touched. That is worse than no detection,
+because it spends the trust the chain exists to earn, on legitimate concurrent use.
+
+Writers are now serialised by an in-process mutex plus a file lock (`audit.jsonl.lock`), which
+covers threads, two server processes, and a client and a gateway sharing a data directory. Reads
+take the same lock so a torn line is never reported as tampering. Verified with 24 concurrent
+threads and two concurrent processes: 24 entries, chain intact, every append landing exactly once.
+If a writer cannot get the lock it returns `audit_locked` and writes nothing, rather than appending
+outside the chain.
+
 ## Review findings
 
 An external review of 0.1.0 found a defect in the approval gate. It is recorded here because a

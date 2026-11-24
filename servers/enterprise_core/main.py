@@ -21,7 +21,11 @@ Check: uv run --script servers/enterprise_core/main.py --selftest
 from __future__ import annotations
 
 import hashlib
+import threading
+import time
+from contextlib import contextmanager
 import json
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -267,7 +271,7 @@ def list_skills(
     found = registry.find(
         domain=canonical_domain, risk=risk, wave=wave, autonomy=autonomy, query=query
     )
-    rows = [registry.public_view(c) for c in found[: max(1, limit)]]
+    rows = [registry.public_view(c) for c in found[:limit]]
     return {
         "matched": len(found),
         "returned": len(rows),
@@ -474,6 +478,13 @@ def score_skills(
     accepts impact, readiness, reuse, effort and risk and is normalised, so the
     numbers do not have to sum to anything in particular.
     """
+    if limit < 1:
+        return {
+            "error": "invalid limit",
+            "problems": [f"limit must be at least 1, got {limit!r}"],
+            "ranked": [],
+            "total_scored": 0,
+        }
     merged, weight_errors = registry.validate_weights(weights)
     if weight_errors:
         return {
@@ -504,7 +515,7 @@ def score_skills(
         key=lambda r: (-r["score"], r["wave"], r["id"]),
     )
     return {
-        "ranked": ranked[: max(1, limit)],
+        "ranked": ranked[:limit],
         "total_scored": len(ranked),
         "weights_used": merged,
         "caveat": registry.scoring_policy()["caveat"],
@@ -516,14 +527,40 @@ def list_requirements(
     type: str | None = None,
     priority: str | None = None,
     query: str | None = None,
+    limit: int = 50,
 ) -> dict[str, Any]:
     """Look up the SRD's 32 testable requirements by type, priority or text.
 
     Use this to answer "what does the platform have to prove", and quote the
     acceptance line rather than paraphrasing it.
+
+    An invalid filter returns `error` naming the valid values; an empty list would read
+    as "no such requirement" rather than "that filter was wrong". A `query` that matches
+    nothing is legitimately empty and is not an error.
     """
+    requirements = registry.requirements()
+    valid_types = sorted({req["type"] for req in requirements})
+    valid_priorities = sorted({req["priority"] for req in requirements})
+
+    problems: list[str] = []
+    if type and type.strip().lower() not in {t.lower() for t in valid_types}:
+        problems.append(f"unknown type {type!r}; valid: {valid_types}")
+    if priority and priority.strip().lower() not in {p.lower() for p in valid_priorities}:
+        problems.append(f"unknown priority {priority!r}; valid: {valid_priorities}")
+    if limit < 1:
+        problems.append(f"limit must be at least 1, got {limit!r}")
+    if problems:
+        return {
+            "error": "invalid filter",
+            "problems": problems,
+            "valid": {"type": valid_types, "priority": valid_priorities},
+            "matched": 0,
+            "returned": 0,
+            "requirements": [],
+        }
+
     found = []
-    for req in registry.requirements():
+    for req in requirements:
         if type and req["type"].lower() != type.lower():
             continue
         if priority and req["priority"].lower() != priority.lower():
@@ -533,7 +570,13 @@ def list_requirements(
             if query.lower() not in hay:
                 continue
         found.append(req)
-    return {"matched": len(found), "requirements": found}
+    rows = found[:limit]
+    return {
+        "matched": len(found),
+        "returned": len(rows),
+        "truncated": len(found) > len(rows),
+        "requirements": rows,
+    }
 
 
 @mcp.tool()
@@ -551,6 +594,77 @@ def get_roadmap() -> dict[str, Any]:
     }
 
 
+_AUDIT_MUTEX = threading.Lock()
+
+
+def _lock_file(fh, timeout: float) -> None:
+    deadline = time.monotonic() + timeout
+    if os.name == "nt":
+        import msvcrt
+
+        while True:
+            try:
+                fh.seek(0)
+                msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+                return
+            except OSError:
+                if time.monotonic() > deadline:
+                    raise TimeoutError("another writer holds the audit trail")
+                time.sleep(0.01)
+    else:  # pragma: no cover - exercised on POSIX
+        import fcntl
+
+        while True:
+            try:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return
+            except OSError:
+                if time.monotonic() > deadline:
+                    raise TimeoutError("another writer holds the audit trail")
+                time.sleep(0.01)
+
+
+def _unlock_file(fh) -> None:
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+        else:  # pragma: no cover - exercised on POSIX
+            import fcntl
+
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+    except OSError:
+        pass
+
+
+@contextmanager
+def _audit_lock(timeout: float = 10.0):
+    """Serialise writers across threads and across processes.
+
+    append reads the previous hash and then writes; two writers that both read before
+    either writes chain to the same entry, forking the trail and making every later read
+    report tampering. A fork is a false alarm on a trail nobody touched, and it costs more
+    trust than the detection buys. The in-process mutex handles threads; the file lock
+    handles two servers or a client and a gateway sharing a data directory.
+    """
+    trail = _audit_path()
+    lock_path = trail.parent / f"{trail.name}.lock"
+    with _AUDIT_MUTEX:
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with lock_path.open("a+b") as handle:
+            if handle.seek(0, os.SEEK_END) == 0:
+                handle.write(b"\0")
+                handle.flush()
+            handle.seek(0)
+            _lock_file(handle, timeout)
+            try:
+                yield
+            finally:
+                _unlock_file(handle)
+
+
 @mcp.tool()
 def audit_append(entry: dict[str, Any]) -> dict[str, Any]:
     """Append a decision record to the tamper-evident audit trail.
@@ -560,16 +674,40 @@ def audit_append(entry: dict[str, Any]) -> dict[str, Any]:
     hash; `audit_trace` recomputes the chain on read and reports the first break.
     The response also states whether the trail verified *before* this append.
     """
+    if not isinstance(entry, dict) or not entry:
+        return {
+            "appended": False,
+            "rule": "invalid_entry",
+            "reason": (
+                "an audit entry must be a non-empty object describing the decision "
+                "(skill_id, actor, mode, outcome). A record with no fields proves nothing "
+                f"and would pad the chain; got {type(entry).__name__}."
+            ),
+            "path": str(_audit_path()),
+        }
+
     path = _audit_path()
-    inherited = verify_chain(path)
-    record = {
-        "timestamp": datetime.now(UTC).isoformat(),
-        "previous_hash": _last_hash(),
-        "entry": entry,
-    }
-    record["entry_hash"] = _entry_hash(record)
-    with path.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(record, sort_keys=True, default=str) + "\n")
+    try:
+        with _audit_lock():
+            inherited = verify_chain(path)
+            record = {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "previous_hash": _last_hash(),
+                "entry": entry,
+            }
+            record["entry_hash"] = _entry_hash(record)
+            with path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record, sort_keys=True, default=str) + "\n")
+    except TimeoutError:
+        return {
+            "appended": False,
+            "rule": "audit_locked",
+            "reason": (
+                "another writer held the audit trail for longer than the lock timeout; "
+                "retry. Nothing was written."
+            ),
+            "path": str(path),
+        }
 
     result: dict[str, Any] = {
         "appended": True,
@@ -599,8 +737,17 @@ def audit_trace(limit: int = 20) -> dict[str, Any]:
     `integrity.problems` names the first entry that does not hold up and why — quote it
     rather than summarising. It cannot detect truncation of the newest entries.
     """
+    if limit < 1:
+        return {
+            "error": "invalid limit",
+            "problems": [f"limit must be at least 1, got {limit!r}"],
+            "entries": [],
+            "total": 0,
+            "path": str(_audit_path()),
+        }
     path = _audit_path()
-    integrity = verify_chain(path)
+    with _audit_lock():
+        integrity = verify_chain(path)
     if not path.exists():
         return {
             "entries": [],
@@ -611,7 +758,7 @@ def audit_trace(limit: int = 20) -> dict[str, Any]:
         }
     lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     entries: list[Any] = []
-    for line in lines[-max(1, limit):]:
+    for line in lines[-limit:]:
         try:
             entries.append(json.loads(line))
         except json.JSONDecodeError:

@@ -476,6 +476,19 @@ def evaluate_connector(
     behaves under load. Passing here means "capable of carrying the guarantees",
     not "correct".
     """
+    if not isinstance(manifest, dict):
+        return {
+            "decision": "rejected",
+            "error": "invalid manifest",
+            "reason": (
+                "a connector manifest must be an object with tools, operations and the "
+                f"conformance flags; got {type(manifest).__name__}"
+            ),
+            "structural_checks": [],
+            "tools": [],
+            "available_operations": [],
+        }
+
     policy = registry.connector_policy()
     reg = registry.skills()
     checks: list[dict[str, Any]] = []
@@ -669,6 +682,29 @@ def evaluate_release(
     reg = registry.skills()
     if skill_id not in reg:
         return {"error": f"unknown skill_id {skill_id!r}", "hint": "call list_skills"}
+
+    if evidence is not None and not isinstance(evidence, dict):
+        return {
+            "skill_id": skill_id,
+            "decision": "blocked",
+            "error": "invalid evidence",
+            "reason": (
+                "evidence must be an object mapping gate item -> true; got "
+                f"{type(evidence).__name__}. A malformed bundle cannot be evaluated, so it "
+                "blocks rather than passing."
+            ),
+        }
+    if waivers is not None:
+        if not isinstance(waivers, list) or any(not isinstance(w, dict) for w in waivers):
+            return {
+                "skill_id": skill_id,
+                "decision": "blocked",
+                "error": "invalid waivers",
+                "reason": (
+                    "waivers must be a list of objects with item, owner, justification and "
+                    "expiry"
+                ),
+            }
 
     evidence = evidence or {}
     policy = registry.release_gates()
