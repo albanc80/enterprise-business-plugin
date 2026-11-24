@@ -70,6 +70,78 @@ def _audit_path() -> Path:
     return _data_dir() / "audit.jsonl"
 
 
+_AUDIT_GENESIS = "genesis"
+
+
+def _entry_hash(record: dict[str, Any]) -> str:
+    """The canonical hash of one entry.
+
+    Defined once and used by both the writer and the verifier: two implementations of
+    "what is hashed" is how a chain quietly stops agreeing with itself.
+    """
+    body = {key: value for key, value in record.items() if key != "entry_hash"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def verify_chain(path: Path | None = None) -> dict[str, Any]:
+    """Walk the whole trail and report the first entry that does not hold up.
+
+    Detects edited content (hash mismatch), an edited entry whose own hash was recomputed
+    (the next entry still records the old one), deleted or reordered entries (broken
+    previous_hash link), unreadable lines and missing hashes.
+
+    It cannot detect removal of the *newest* entries: the surviving prefix is a valid
+    chain. That needs an anchor outside the file — a count or head hash recorded
+    elsewhere — and is stated as a limitation rather than implied away.
+    """
+    path = path or _audit_path()
+    report: dict[str, Any] = {
+        "verified": True,
+        "entries": 0,
+        "first_bad_index": None,
+        "problems": [],
+    }
+    if not path.exists():
+        return report
+
+    lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    report["entries"] = len(lines)
+    expected_previous = _AUDIT_GENESIS
+
+    def bad(index: int, message: str) -> None:
+        report["verified"] = False
+        if report["first_bad_index"] is None:
+            report["first_bad_index"] = index
+        report["problems"].append(f"entry {index}: {message}")
+
+    for index, line in enumerate(lines):
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            bad(index, "unreadable line (not JSON) — cannot be verified")
+            continue
+        if not isinstance(record, dict):
+            bad(index, "unreadable line (not a JSON object)")
+            continue
+
+        recorded = record.get("entry_hash")
+        if not recorded:
+            bad(index, "missing entry_hash")
+        elif _entry_hash(record) != recorded:
+            bad(index, "content does not match its entry_hash — the entry was edited")
+
+        linked = record.get("previous_hash")
+        if linked != expected_previous:
+            bad(
+                index,
+                f"previous_hash {linked!r} does not link to the preceding entry "
+                f"{expected_previous!r} — an entry was removed, reordered or rewritten",
+            )
+        if recorded:
+            expected_previous = recorded
+    return report
+
+
 def _last_hash() -> str:
     path = _audit_path()
     if not path.exists():
@@ -128,7 +200,7 @@ def list_capabilities() -> dict[str, Any]:
             "validate a proposed approval against the approval rules",
             "check release-gate evidence and report exactly what is missing",
             "score and rank candidate skills with the SRD's own weighting",
-            "append and read a hash-chained audit trail",
+            "append to and verify a hash-chained audit trail",
         ],
         "cannot": [
             "connect to any enterprise system — no HRIS, ERP, ITSM, CRM, EHS or IAM",
@@ -478,33 +550,71 @@ def audit_append(entry: dict[str, Any]) -> dict[str, Any]:
 
     Include skill_id, actor, mode, risk, approval_id (when one was redeemed),
     downgrades applied, and the outcome. Each entry is chained to the previous by
-    hash, so a silent edit is detectable on read.
+    hash; `audit_trace` recomputes the chain on read and reports the first break.
+    The response also states whether the trail verified *before* this append.
     """
     path = _audit_path()
-    previous = _last_hash()
+    inherited = verify_chain(path)
     record = {
         "timestamp": datetime.now(UTC).isoformat(),
-        "previous_hash": previous,
+        "previous_hash": _last_hash(),
         "entry": entry,
     }
-    blob = json.dumps(record, sort_keys=True, default=str).encode()
-    record["entry_hash"] = hashlib.sha256(blob).hexdigest()
+    record["entry_hash"] = _entry_hash(record)
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(record, sort_keys=True, default=str) + "\n")
-    return {"appended": True, "path": str(path), "entry_hash": record["entry_hash"]}
+
+    result: dict[str, Any] = {
+        "appended": True,
+        "path": str(path),
+        "entry_hash": record["entry_hash"],
+        "chain_intact_before_append": inherited["verified"],
+        "entries": inherited["entries"] + 1,
+    }
+    if not inherited["verified"]:
+        # Appending is still correct — refusing would destroy the record of what just
+        # happened — but the caller must not be told the trail is sound.
+        result["integrity_warning"] = (
+            "the trail did not verify before this append ("
+            + inherited["problems"][0]
+            + "). This entry is chained to the record as written, but the trail is already "
+            "broken there; audit_trace reports where."
+        )
+        result["integrity"] = inherited
+    return result
 
 
 @mcp.tool()
 def audit_trace(limit: int = 20) -> dict[str, Any]:
-    """Read the most recent audit entries, oldest first."""
+    """Read the most recent audit entries, oldest first, with chain verification.
+
+    `verified` is the answer to "has this trail been tampered with". When it is false,
+    `integrity.problems` names the first entry that does not hold up and why — quote it
+    rather than summarising. It cannot detect truncation of the newest entries.
+    """
     path = _audit_path()
+    integrity = verify_chain(path)
     if not path.exists():
-        return {"entries": [], "total": 0, "path": str(path)}
+        return {
+            "entries": [],
+            "total": 0,
+            "path": str(path),
+            "verified": True,
+            "integrity": integrity,
+        }
     lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    entries: list[Any] = []
+    for line in lines[-max(1, limit):]:
+        try:
+            entries.append(json.loads(line))
+        except json.JSONDecodeError:
+            entries.append({"unreadable": line[:120]})
     return {
-        "entries": [json.loads(ln) for ln in lines[-max(1, limit):]],
+        "entries": entries,
         "total": len(lines),
         "path": str(path),
+        "verified": integrity["verified"],
+        "integrity": integrity,
     }
 
 

@@ -36,13 +36,37 @@ These are deliberate and visible rather than implied to be solved:
    forged id fails closed; but a restart empties the ledger and therefore voids outstanding
    approvals. That is the intended direction — it fails toward "ask a human again", never toward
    "honour a stale authorisation". A durable ledger belongs in the same store as the audit trail.
-2. **The audit chain detects tampering, it does not prevent it.** A writer with filesystem access
-   can rewrite the whole chain. Anchoring requires an external append-only sink.
+2. **The audit chain detects tampering; it does not prevent it.** `audit_trace` recomputes the
+   whole chain on every read and reports the first entry that does not hold up: edited content,
+   an edited entry whose own hash was recomputed (the next entry still records the old one),
+   deleted or reordered entries, unreadable lines, missing hashes. `audit_append` also reports
+   whether the trail verified *before* it wrote, so a call cannot quietly extend a broken chain.
+   Two limits remain and both are real: a writer with filesystem access can rebuild the entire
+   chain from genesis, and **removal of the newest entries is undetectable from inside the file**,
+   because the surviving prefix is a valid chain. Closing either needs an anchor outside the file
+   — an append-only sink or an externally recorded head hash — which this package does not ship.
 3. **The server is a reference implementation of the governance model**, not a hardened service.
    There is no authentication layer because there is no network surface.
-4. **Validation of an approval is not verification of an approver's authority.** The gate checks
-   separation of duties, expiry, binding and evidence completeness. Confirming that a named
-   approver actually held the delegated authority is the identity system's job.
+4. **The gate checks that a role is authorised; it cannot check that the person holds it.** The
+   approver's role must match the contract's declared owner or appear in
+   `rules.authorised_approver.roles_by_risk` for the risk tier, and the issued token records which
+   basis applied. Whether the named individual actually occupies that role is the identity
+   system's job, not this package's.
+
+### 0.1.4 — the audit chain is verified, not just chained
+
+The package claimed a "tamper-evident" trail and shipped a chain nobody checked: `audit_trace`
+parsed lines and returned them, and `audit_append` chained to the last recorded hash without
+verifying it. The design was sound and the verifier was missing, which is the version of this
+failure that survives review — a decorative chain looks identical to a working one until someone
+edits a line.
+
+`verify_chain()` now walks the trail and is called on both the read and the write path, with the
+hash defined once and shared by writer and verifier so the two cannot drift. Eleven adversarial
+tests in `tests/test_audit_chain.py` edit, recompute, delete, reorder, truncate and corrupt the
+file on disk; a clean chain passes and every tampering case is caught — except tail truncation,
+which is pinned as a test asserting it is *not* detectable, so the limitation cannot be quietly
+forgotten.
 
 ## Review findings
 

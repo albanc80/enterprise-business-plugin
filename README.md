@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/albanc80/enterprise-business-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.1.3-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
+[![version](https://img.shields.io/badge/version-0.1.4-orange.svg)](https://github.com/albanc80/enterprise-business-plugin/releases)
 
 A portable **[Agent Plugins v1](https://agent-plugins.org)** package carrying a governed AI
 skills layer for business operations: **93 skill contracts across 12 business functions,
@@ -217,14 +217,15 @@ policy decision, so tightening it never rewrites a source contract.
 
 ## Status
 
-**Version 0.1.3 — reference implementation, unvalidated in use.**
+**Version 0.1.4 — reference implementation, unvalidated in use.**
 
 > **Every release so far has been a security release.** Two external reviews broke the
 > package: 0.1.0's approval gate accepted ids it never issued and could mint a token for a
 > payment on a drafting-only skill (fixed in 0.1.1); its tools then accepted malformed
-> filters, negative scoring weights and unverified approver roles (fixed in 0.1.2–0.1.3). Each fix
+> filters, negative scoring weights and unverified approver roles (fixed in 0.1.2–0.1.3); and its audit trail was chained but
+> never verified (fixed in 0.1.4). Each fix
 > has a regression test written to fail against the version that shipped the defect — see
-> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.3, update. No adopter, no assigned process
+> [`SECURITY.md`](SECURITY.md). If you installed anything before 0.1.4, update. No adopter, no assigned process
 owner, no measured baseline and no golden set exists yet. The version says so deliberately: the
 contract format and the governance model are settled enough to distribute, and not settled enough
 to promise stability.
